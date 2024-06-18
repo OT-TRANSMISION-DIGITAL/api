@@ -61,7 +61,7 @@ class LoginController extends Controller
                     $user->save();
                     //mandar mail con el codigo
                     $emailAdmin = new CodigoAuthCorreo($codigo);
-                    Mail::to('marcelacasesc@gmail.com')->send($emailAdmin);
+                    Mail::to($user->correo)->send($emailAdmin);
 
                     return response()->json([
                         'rutaFirmada' => $url,
