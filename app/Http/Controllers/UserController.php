@@ -2,103 +2,87 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
+// Use Controllers
 use App\Http\Controllers\Controller;
+// Use Requests
+use Illuminate\Http\Request;
+use App\Http\Requests\Auth\RegisterRequest;
+// Use Models
 use App\Models\User;
 use App\Models\Rol;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Database\QueryException;
-use PDOException;
-use Exception;
-use Illuminate\Support\Facades\Validator;
+// Use Facades
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Hash;
+// Use Exceptions
+use Illuminate\Database\QueryException;
+use Exception;
 
 class UserController extends Controller
 {
-    public function create(Request $request)
+    public function create(RegisterRequest $request)
     {
+        $validatedData = $request->validated();
+        
         try {
-            $validator = Validator::make($request->all(), [
-                'nombre' => 'required|string|min:3|regex:/^[a-zA-Z]*$/',
-                'correo' => 'required|string|email|max:255|unique:users',
-                'telefono' => 'required|string|min:10|max:10',
-                'password' => 'required|string|min:8',
-                'rol_id' => 'integer|required'
+            $user = User::create([
+                'nombre' => $validatedData['nombre'],
+                'correo' => $validatedData['correo'],
+                'telefono' => $validatedData['telefono'],
+                'password' => Hash::make($validatedData['password']),
+                'rol_id' => $validatedData['rol_id'],
+                'estatus' => true
             ]);
-            if ($validator->fails()) {
-                return response()->json([
-                    "msg"=>"No se cumplieron las validaciones",
-                    "errors" => $validator->errors()
-                ], 400);
-            }
-
-            $user = new User();
-            $user->nombre = $request->nombre;
-            $user->correo = $request->correo;
-            $user->telefono = $request->telefono;
-            $user->password = Hash::make($request->password);
-            $user->rol_id = $request->rol_id;
-            $user->estatus = true;
-
-            if ($user->save()) {
-                return response()->json([
-                    'msg' => 'Usuario creado con éxito',
-                    'usuario' => $user->id
-                ], 200);                
-            }
-
         } catch (QueryException $e) {
             // Manejo de la excepción de consulta SQL
-            //Log::channel('slackerror')->error('LoginController@registro (api) Error consulta SQL', [$e->getMessage()]);
             Log::error('Error de consulta SQL: ' . $e->getMessage());
-            return response()->json(["errors" => 'Error interno del servidor'], 500);
-        } catch (PDOException $e) {
-            // Manejo de la excepción de PDO
-            Log::error('Error de PDO: ' . $e->getMessage());
-            //Log::channel('slackerror')->error('LoginController@registro (api) Error PDO', [$e->getMessage()]);
-            return response()->json(["errors" => 'Error interno del servidor'], 500);
+            return response()->json([
+                "error" => 'Error interno del servidor.',
+                "message" => "Error al crear el usuario."
+            ], 500);
         } catch (Exception $e) {
             // Manejo de cualquier otra excepción no prevista
             Log::error('Excepción no controlada: ' . $e->getMessage());
-            //Log::channel('slackerror')->error('LoginController@registro (api) Excepción no controlada', [$e->getMessage()]);
-            return response()->json(["errors" => 'Error interno del servidor'], 500);
+            return response()->json([
+                "error" => 'Error interno del servidor.',
+                "message" => "No se pudo resolver la petición."
+            ], 500);
         }
+
+        return response()->json([
+            'msg' => 'Usuario creado con éxito',
+            'usuario' => $user->id
+        ], 200);  
     }
 
-    public function roles()
+    public function roles(Request $request)
     {
         try {
-            $roles = DB::table('roles')->select('roles.id','roles.nombre')
-            //->where('roles.name', '!=', 'admin')
-            ->get();
-            if ($roles === null) {
-                return abort(403);
-            }
-
-            return response()->json([
-                'msg' => 'Roles :) ',
-                'roles' => $roles,
-            ], 200);
-
-
+            $roles = Rol::select('id', 'nombre')->get();
         } catch (QueryException $e) {
             // Manejo de la excepción de consulta SQL
-            //Log::channel('slackerror')->error('LoginController@registro (api) Error consulta SQL', [$e->getMessage()]);
             Log::error('Error de consulta SQL: ' . $e->getMessage());
-            return response()->json(["errors" => 'Error interno del servidor'], 500);
-        } catch (PDOException $e) {
-            // Manejo de la excepción de PDO
-            Log::error('Error de PDO: ' . $e->getMessage());
-            //Log::channel('slackerror')->error('LoginController@registro (api) Error PDO', [$e->getMessage()]);
-            return response()->json(["errors" => 'Error interno del servidor'], 500);
+            return response()->json([
+                "error" => 'Error interno del servidor',
+                "message" => "Error al obtener los roles."
+            ], 500);
         } catch (Exception $e) {
             // Manejo de cualquier otra excepción no prevista
             Log::error('Excepción no controlada: ' . $e->getMessage());
-            //Log::channel('slackerror')->error('LoginController@registro (api) Excepción no controlada', [$e->getMessage()]);
-            return response()->json(["errors" => 'Error interno del servidor'], 500);
+            return response()->json([
+                "error" => 'Error interno del servidor',
+                "message" => "No se pudo resolver la petición."
+            ], 500);
         }
 
+        if($roles->isEmpty()) return response()->json([
+            'msg' => 'No se encontraron roles.',
+            'roles' => []
+        ], 404);
+
+        return response()->json([
+            'msg' => 'Roles obtenidos con éxito.',
+            'roles' => $roles,
+        ], 200);
     }
 
 }
