@@ -2,231 +2,159 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
+// Use Controllers
 use App\Http\Controllers\Controller;
+// Use Requests
+use Illuminate\Http\Request;
+use App\Http\Requests\Auth\LoginRequest;
+use App\Http\Requests\Auth\ValidateCodeRequest;
+// Use Models
 use App\Models\User;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Database\QueryException;
-use Illuminate\Support\Facades\Redirect;
-use PDOException;
-use Exception;
-use Illuminate\Support\Facades\Validator;
+// Use Mails
+use App\Mail\CodigoAuthCorreo;
+// Use Facades
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\URL;
-use App\Mail\CodigoAuthCorreo;
 use Illuminate\Support\Facades\Mail;
+// Use Exceptions
+use Illuminate\Database\QueryException;
+use Exception;
 
 
 
 class LoginController extends Controller
 {
 
-    public function login(Request $request)
+    public function login(LoginRequest $request): \Illuminate\Http\JsonResponse
     {
+        $validateData = $request->validated();
         try {
-            $validator = Validator::make($request->all(), [
-                'correo' => 'required|email',
-                'password' => 'required'
-            ]);
-    
-            if ($validator->fails()) {
-                return response()->json([
-                    "msg"=>"No se cumplieron las validaciones",
-                    "errors" => $validator->errors()
-                ], 400);
-            }
-
             //Verificar si el usuario existe    
-            $user = User::where("correo", "=", $request->correo)->first();
-
-            //Si el usuario existe
-            if ($user !== null) {
-                // Verificar la contraseña
-                if (Hash::check($request->password, $user->password)) {
-
-                    // Si el usuario es un administrador, generar la ruta firmada sin intentar autenticarlo
-                    //Y mandara el codigo al correo
-                    if ($user->rol_id == 1) {
-
-                    $url = URL::temporarySignedRoute('validarCodigo', now()->addMinutes(10), [
-                        'id' => $user->id
-                    ]);                        
-                    // Generar numero aleatorio, convertirlo a string y hashear
-                    $random = sprintf("%04d", rand(0, 9999));
-                    $codigo = strval($random); //convertir a string
-                    $codigo_hash = password_hash($codigo, PASSWORD_DEFAULT);
-                    //Guardarlo en BD 
-                    $user->codigo = $codigo_hash;
-                    $user->save();
-                    //mandar mail con el codigo
-                    $emailAdmin = new CodigoAuthCorreo($codigo);
-                    Mail::to($user->correo)->send($emailAdmin);
-
-                    return response()->json([
-                        'rutaFirmada' => $url,
-                        'msj' => 'Se ha enviado un correo con el código de autenticación.',
-                    ], 200);
-
-                    }
-                    else{
-
-                    // Si el usuario no es un administrador, autenticarlo
-                    return response()->json([
-                        'token' => $user->createToken("auth_token")->plainTextToken,
-                        'usuario' => $user
-                    ], 200);   
-
-                    }
-                    
-
-                } else {
-                    //Si se equivoco en la contraseña
-                    return response()->json([
-                        "msg"=>"credenciales incorrectas",
-                        ],400);
-                }
-            }
-            //Si el usuario no existe 
-            else {
-                return response()->json([
-                    "msg"=>"credenciales incorrectas",
-                    ],400);
-                }
-
-
+            $user = User::where("correo", "=", $validateData['correo'])->first();
         } catch (QueryException $e) {
             // Manejo de la excepción de consulta SQL
-            //Log::channel('slackerror')->error('LoginController@registro (api) Error consulta SQL', [$e->getMessage()]);
             Log::error('Error de consulta SQL: ' . $e->getMessage());
-            return response()->json(["errors" => 'Error interno del servidor'], 500);
-        } catch (PDOException $e) {
-            // Manejo de la excepción de PDO
-            Log::error('Error de PDO: ' . $e->getMessage());
-            //Log::channel('slackerror')->error('LoginController@registro (api) Error PDO', [$e->getMessage()]);
-            return response()->json(["errors" => 'Error interno del servidor'], 500);
-        } catch (Exception $e) {
-            // Manejo de cualquier otra excepción no prevista
-            Log::error('Excepción no controlada: ' . $e->getMessage());
-            //Log::channel('slackerror')->error('LoginController@registro (api) Excepción no controlada', [$e->getMessage()]);
-            return response()->json(["errors" => 'Error interno del servidor'], 500);
-        }
-    }
-
-    public function logout($id)
-    {
-        try {
-            //Buscar Usuario
-            $user = User::find($id);
-
-            if ($user === null) {
-                return response()->json([
-                    'msg' => 'Acceso no autorizado',
-                ], 403);
-            }
-
-            $user->tokens()->delete();
-
             return response()->json([
-                'msg' => 'Seccion cerrada',
-            ],200);
-
-        } catch (QueryException $e) {
-            // Manejo de la excepción de consulta SQL
-            //Log::channel('slackerror')->error('LoginController@registro (api) Error consulta SQL', [$e->getMessage()]);
-            Log::error('Error de consulta SQL: ' . $e->getMessage());
-            return response()->json(["errors" => 'Error interno del servidor'], 500);
-        } catch (PDOException $e) {
-            // Manejo de la excepción de PDO
-            Log::error('Error de PDO: ' . $e->getMessage());
-            //Log::channel('slackerror')->error('LoginController@registro (api) Error PDO', [$e->getMessage()]);
-            return response()->json(["errors" => 'Error interno del servidor'], 500);
+                "error" => 'Error interno del servidor',
+                "message" => "Usuario no encontrado."
+            ], 500);
         } catch (Exception $e) {
             // Manejo de cualquier otra excepción no prevista
             Log::error('Excepción no controlada: ' . $e->getMessage());
-            //Log::channel('slackerror')->error('LoginController@registro (api) Excepción no controlada', [$e->getMessage()]);
-            return response()->json(["errors" => 'Error interno del servidor'], 500);
+            return response()->json([
+                "error" => 'Error interno del servidor',
+                "message" => "No se pudo resolver la petición."
+            ], 500);
         }
+
+        //Si el usuario no existe o se equivoco en la contraseña
+        if ($user == null && !Hash::check($validateData['password'], $user->password)) return response()->json([
+            "msg"=>"credenciales incorrectas",
+            ],400);
+
+        // Si el usuario no es un administrador, autenticarlo
+        if (!($user->rol_id == 1)) return response()->json([
+            'token' => $user->createToken("auth_token")->plainTextToken,
+            'usuario' => $user
+        ], 200); 
+
+        // Si el usuario es un administrador, generar la ruta firmada sin intentar autenticarlo
+        //Y mandara el codigo al correo
+        $url = URL::temporarySignedRoute('validarCodigo', now()->addMinutes(10), [
+            'id' => $user->id
+        ]);                        
+        // Generar numero aleatorio, convertirlo a string y hashear
+        $random = sprintf("%04d", rand(0, 9999));
+        $codigo = strval($random); //convertir a string
+        $codigo_hash = password_hash($codigo, PASSWORD_DEFAULT);
+        
+        try {
+            //Guardarlo en BD 
+            $user->codigo = $codigo_hash;
+            $user->save();
+
+            //mandar mail con el codigo
+            $emailAdmin = new CodigoAuthCorreo($codigo);
+            Mail::to($user->correo)->send($emailAdmin);
+        } catch (QueryException $e) {
+            // Manejo de la excepción de consulta SQL
+            Log::error('Error de consulta SQL: ' . $e->getMessage());
+            return response()->json([
+                "error" => 'Error interno del servidor',
+                "message" => "Error al generar el codigo."
+            ], 500);
+        } catch (Exception $e) {
+            // Manejo de cualquier otra excepción no prevista
+            Log::error('Excepción no controlada: ' . $e->getMessage());
+            return response()->json([
+                "error" => 'Error interno del servidor',
+                "message" => "No se pudo resolver la petición."
+            ], 500);
+        }
+
+        return response()->json([
+            'rutaFirmada' => $url,
+            'msj' => 'Se ha enviado un correo con el código de autenticación.',
+        ], 200);
     }
 
-    public function validarCodigo($id, Request $request)
+    public function logout(Request $request)
     {
+        // Recuperar el usuario autenticado
+        $user = $request->user();
+        // Revocar todos los tokens del usuario
+        $user->tokens()->delete();
+        // Retornar respuesta
+        return response()->json([
+            'msg' => 'Seccion cerrada',
+        ],200);
+    }
+
+    public function validarCodigo($id, ValidateCodeRequest $request)
+    {
+        //Si la ruta firmada no es valida
+        if (!$request->hasValidSignature()) {
+            return response()->json([
+                'msg' => 'Acceso no autorizado',
+            ], 403);
+        }
+        $validateData = $request->validated();
         try {
-
-            //Si la ruta firmada no es valida
-            if (!$request->hasValidSignature()) {
-                return response()->json([
-                    'msg' => 'Acceso no autorizado',
-                ], 403);
-            }
-
-            //validar que viene el codigo
-            $validator = Validator::make(
-                $request->all(),
-                [
-                    'codigo' => 'required',
-                ]
-            );
-    
-            if ($validator->fails()) {
-                return response()->json([
-                    "msg"=>"No se cumplieron las validaciones",
-                    "errors" => $validator->errors()
-                ], 400);
-            }
-
             //Buscar Usuario
             $user = User::find($id);
 
-            if ($user === null) {
-                return response()->json([
-                    'msg' => 'Acceso no autorizado',
+            // Verificar si el usuario existe
+            if ($user === null) return response()->json([
+                    'msg' => 'Acceso no autorizado.',
                 ], 403);
-            }
-
-            //Si es admin va a validar que el codigo sea correcto, si es asi logear a admin
-            if (password_verify($request->codigo, $user->codigo)) {
-
-                    return response()->json([
-                        'token' => $user->createToken("auth_token")->plainTextToken,
-                        'usuario' => $user
-                    ], 200); 
-
-            }
-            else{
-                return response()->json([
-                    'msg' => 'Codigo incorrecto',
-                ], 403);
-            }
-
-
         } catch (QueryException $e) {
             // Manejo de la excepción de consulta SQL
-            //Log::channel('slackerror')->error('LoginController@registro (api) Error consulta SQL', [$e->getMessage()]);
             Log::error('Error de consulta SQL: ' . $e->getMessage());
-            return response()->json(["errors" => 'Error interno del servidor'], 500);
-        } catch (PDOException $e) {
-            // Manejo de la excepción de PDO
-            Log::error('Error de PDO: ' . $e->getMessage());
-            //Log::channel('slackerror')->error('LoginController@registro (api) Error PDO', [$e->getMessage()]);
-            return response()->json(["errors" => 'Error interno del servidor'], 500);
+            return response()->json([
+                "error" => 'Error interno del servidor',
+                "message" => "Acceso no autorizado."
+            ], 500);
         } catch (Exception $e) {
             // Manejo de cualquier otra excepción no prevista
             Log::error('Excepción no controlada: ' . $e->getMessage());
-            //Log::channel('slackerror')->error('LoginController@registro (api) Excepción no controlada', [$e->getMessage()]);
-            return response()->json(["errors" => 'Error interno del servidor'], 500);
+            return response()->json([
+                "error" => 'Error interno del servidor',
+                "message" => "No se pudo resolver la petición."
+            ], 500);
         }
-    }
 
-    public function prueba()
-    {
-        $codigo= '123456';
-        $email = new CodigoAuthCorreo($codigo);
-        Mail::to('miguelflow668@gmail.com')->send($email);
-        
+        // Verificar que el código sea correcto
+        if (!password_verify($validateData["codigo"], $user->codigo)) return response()->json([
+            'msg' => 'Codigo incorrecto',
+        ], 403);
+    
+        //Si es admin va a validar que el codigo sea correcto, si es asi logear a admin
         return response()->json([
-            'msg' => 'Ok'
-        ], 200);
+            'token' => $user->createToken("auth_token")->plainTextToken,
+            'usuario' => $user
+        ], 200); 
+
     }
 
 

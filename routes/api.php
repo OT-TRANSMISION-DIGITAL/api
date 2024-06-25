@@ -24,7 +24,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 
 
 //RUTAS PARA AUTENTICACION
-Route::get('/logout/{id}',[LoginController::class,'logout'])->middleware('auth:sanctum');
+Route::get('/logout',[LoginController::class,'logout'])->middleware('auth:sanctum');
 Route::post('login',[LoginController::class, 'login']);
 Route::post('validarCodigo/{id}',[LoginController::class, 'validarCodigo'])->name('validarCodigo')->middleware('signed');
 
