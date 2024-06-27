@@ -16,7 +16,7 @@ class RegisterRequest extends FormRequest
      */
     public function authorize()
     {
-        return false; // Validar esto según las reglas de negocio de la aplicación
+        return true; // Validar esto según las reglas de negocio de la aplicación
     }
 
     /**
@@ -27,7 +27,7 @@ class RegisterRequest extends FormRequest
     public function rules()
     {
         return [
-            'nombre' => 'required|string|min:3|regex:/^[a-zA-Z]*$/',
+            'nombre' => 'required|string|min:3|regex:/^[a-zA-Z\s]*$/',
             'correo' => 'required|string|email|max:255|unique:users',
             'telefono' => 'required|string|min:10|max:10',
             'password' => 'required|string|min:8',
