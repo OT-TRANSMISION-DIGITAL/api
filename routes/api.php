@@ -4,7 +4,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\UserController;
-
+use App\Http\Controllers\SucursalController;
+use App\Http\Controllers\ClienteController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -32,6 +33,13 @@ Route::post('validarCodigo/{id}',[LoginController::class, 'validarCodigo'])->nam
 Route::post('registrar',[UserController::class, 'create']);
 Route::get('roles',[UserController::class, 'roles']);
 
+
+//CLIENTES
+Route::get('clientes',[ClienteController::class, 'index']);
+Route::get('cliente/{id}',[ClienteController::class, 'show']);
+Route::post('clientes',[ClienteController::class, 'create']);
+Route::put('clientes/{id}',[ClienteController::class, 'update']);
+Route::delete('clientes/{id}',[ClienteController::class, 'delete']);
 
 
 Route::get('prueba',[LoginController::class, 'prueba']);
