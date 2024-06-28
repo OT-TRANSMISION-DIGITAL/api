@@ -29,8 +29,7 @@ class ClienteRequest extends FormRequest
         return [
             'nombre' => 'required|string|min:3|regex:/^[a-zA-Z\s]*$/',
             'correo' => 'required|string|email|max:255',
-            'telefono' => 'required|string|min:10|max:10',
-            'direccion' => 'required|string'
+            'telefono' => 'required|string|min:10|max:10'
         ];
     }
 

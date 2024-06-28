@@ -52,7 +52,6 @@ class ClienteController extends Controller
                 'nombre' => $validatedData['nombre'],
                 'correo' => $validatedData['correo'],
                 'telefono' => $validatedData['telefono'],
-                'direccion' => $validatedData['direccion'],
                 'estatus' => true
             ]);
         } catch (QueryException $e) {
@@ -103,8 +102,6 @@ class ClienteController extends Controller
                 'nombre' => $validatedData['nombre'],
                 'correo' => $validatedData['correo'],
                 'telefono' => $validatedData['telefono'],
-                'direccion' => $validatedData['direccion'],
-
             ]);
         } catch (QueryException $e) {
             // Manejo de la excepción de consulta SQL
