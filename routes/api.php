@@ -6,6 +6,7 @@ use App\Http\Controllers\LoginController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\SucursalController;
 use App\Http\Controllers\ClienteController;
+use App\Http\Controllers\ProductoController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -47,6 +48,13 @@ Route::get('sucursales/{id}',[SucursalController::class, 'show']);
 Route::post('sucursales',[SucursalController::class, 'create']);
 Route::put('sucursales/{id}',[SucursalController::class, 'update']);
 Route::delete('sucursales/{id}',[SucursalController::class, 'delete']);
+
+//PRODUCTOS
+Route::get('productos',[ProductoController::class, 'index']);
+Route::get('productos/{id}',[ProductoController::class, 'show']);
+Route::post('productos',[ProductoController::class, 'create']);
+Route::put('productos/{id}',[ProductoController::class, 'update']);
+Route::delete('productos/{id}',[ProductoController::class, 'delete']);
 
 
 Route::get('prueba',[LoginController::class, 'prueba']);
