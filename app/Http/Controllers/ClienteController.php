@@ -14,7 +14,7 @@ class ClienteController extends Controller
 {
     public function index(Request $request)
     {
-        $clientes = Cliente::select('clientes.*')->where('estatus', true);
+        $clientes = Cliente::select('id','nombre', 'correo', 'telefono')->where('estatus', true)->with('sucursales');
         $page = $request->get('page', 1);
         $perPage = $request->get('perPage', 20);
         $offset = $page == 1 ? 0 : $perPage * ($page - 1);
@@ -77,7 +77,7 @@ class ClienteController extends Controller
     }
 
     public function show($id){
-        $cliente = Cliente::find($id);
+        $cliente = Cliente::select('id','nombre', 'correo', 'telefono')->with('sucursales')->find($id);
         if(!$cliente){
             return response()->json([
                 'msg' => 'Cliente no encontrado',
