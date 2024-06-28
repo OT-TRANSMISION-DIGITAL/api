@@ -41,5 +41,12 @@ Route::post('clientes',[ClienteController::class, 'create']);
 Route::put('clientes/{id}',[ClienteController::class, 'update']);
 Route::delete('clientes/{id}',[ClienteController::class, 'delete']);
 
+//SUCURSALES
+Route::get('sucursales',[SucursalController::class, 'index']);
+Route::get('sucursales/{id}',[SucursalController::class, 'show']);
+Route::post('sucursales',[SucursalController::class, 'create']);
+Route::put('sucursales/{id}',[SucursalController::class, 'update']);
+Route::delete('sucursales/{id}',[SucursalController::class, 'delete']);
+
 
 Route::get('prueba',[LoginController::class, 'prueba']);
