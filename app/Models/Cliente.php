@@ -20,6 +20,6 @@ class Cliente extends Model
 
     public function sucursales()
     {
-        return $this->hasMany(Sucursal::class);
+        return $this->hasMany(Sucursal::class)->where('estatus', true);;
     }
 }
