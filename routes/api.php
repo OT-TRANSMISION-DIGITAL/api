@@ -33,7 +33,10 @@ Route::post('validarCodigo/{id}',[LoginController::class, 'validarCodigo'])->nam
 //USUARIOS
 Route::post('registrar',[UserController::class, 'create']);
 Route::get('roles',[UserController::class, 'roles']);
-
+Route::get('usuarios',[UserController::class, 'index']);
+Route::get('usuarios/{id}',[UserController::class, 'show']);
+Route::put('usuarios/{id}',[UserController::class, 'update']);
+Route::delete('usuarios/{id}',[UserController::class, 'delete']);
 
 //CLIENTES
 Route::get('clientes',[ClienteController::class, 'index']);
