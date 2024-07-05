@@ -7,6 +7,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\SucursalController;
 use App\Http\Controllers\ClienteController;
 use App\Http\Controllers\ProductoController;
+use App\Http\Controllers\VisitaController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -58,6 +59,23 @@ Route::get('productos/{id}',[ProductoController::class, 'show']);
 Route::post('productos',[ProductoController::class, 'create']);
 Route::put('productos/{id}',[ProductoController::class, 'update']);
 Route::delete('productos/{id}',[ProductoController::class, 'delete']);
+
+//VISITAS
+Route::get('visitas',[VisitaController::class, 'index']);
+Route::get('visitas/{id}',[VisitaController::class, 'show']);
+Route::post('visitas',[VisitaController::class, 'create']);
+Route::put('visitas/{id}',[VisitaController::class, 'update']);
+Route::delete('visitas/{id}',[VisitaController::class, 'delete']);
+
+
+//RUTAS SIN FILTRAR
+Route::get('productosSinFiltrar',[ProductoController::class, 'productos']);
+Route::get('clientesSinFiltrar',[ClienteController::class, 'clientes']);
+Route::get('sucursalesSinFiltrar',[SucursalController::class, 'sucursales']);
+Route::get('tecnicos',[UserController::class, 'tecnicos']);
+Route::get('secretarias',[UserController::class, 'secretaria']);
+
+
 
 
 Route::get('prueba',[LoginController::class, 'prueba']);

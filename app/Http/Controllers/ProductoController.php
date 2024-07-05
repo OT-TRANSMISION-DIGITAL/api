@@ -37,7 +37,23 @@ class ProductoController extends Controller
         } catch (Exception $e) {
             Log::error($e->getMessage());
             return response()->json([
-                "msg" => "Error al obtener las sucursales",
+                "msg" => "Error al obtener los productos",
+                "error" => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function productos()
+    {
+        $productos = Producto::select('id','nombre','descripcion','precio','img')->where('estatus', true);
+
+        try {
+        $productos = $productos->get();
+            return response()->json($productos,200);
+        } catch (Exception $e) {
+            Log::error($e->getMessage());
+            return response()->json([
+                "msg" => "Error al obtener los productos",
                 "error" => $e->getMessage()
             ], 500);
         }

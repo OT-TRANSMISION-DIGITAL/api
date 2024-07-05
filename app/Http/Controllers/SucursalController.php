@@ -51,6 +51,23 @@ class SucursalController extends Controller
         }
     }
 
+    public function sucursales()
+    {
+        $sucursales = Sucursal::select('id','nombre', 'direccion', 'telefono','cliente_id')
+        ->where('estatus', true)->with('cliente');
+
+        try {
+        $sucursales = $sucursales->get();
+            return response()->json($sucursales,200);
+        } catch (Exception $e) {
+            Log::error($e->getMessage());
+            return response()->json([
+                "msg" => "Error al obtener las sucursales",
+                "error" => $e->getMessage()
+            ], 500);
+        }
+    }
+
     public function create(SucursalRequest $request)
     {
         $validatedData = $request->validated();

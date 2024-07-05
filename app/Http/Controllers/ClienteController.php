@@ -42,6 +42,21 @@ class ClienteController extends Controller
             ], 500);
         }
     }
+    
+    public function clientes()
+    {
+        $clientes = Cliente::select('id','nombre', 'correo', 'telefono')->where('estatus', true)->with('sucursales');
+        try {
+        $clientes = $clientes->get();
+            return response()->json($clientes,200);
+        } catch (Exception $e) {
+            Log::error($e->getMessage());
+            return response()->json([
+                "msg" => "Error al obtener los clientes",
+                "error" => $e->getMessage()
+            ], 500);
+        }
+    }
 
     public function create(ClienteRequest $request)
     {

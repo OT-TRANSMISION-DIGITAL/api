@@ -200,4 +200,22 @@ class UserController extends Controller
         ], 200);  
     }
 
+    public function tecnicos()
+    {
+        $tecnicos = User::select('id','nombre', 'correo', 'telefono')
+        ->where('estatus', true)->where('rol_id', 3);
+
+
+        try {
+        $tecnicos = $tecnicos->get();
+            return response()->json($tecnicos,200);
+        } catch (Exception $e) {
+            Log::error($e->getMessage());
+            return response()->json([
+                "msg" => "Error al obtener los tecnicos",
+                "error" => $e->getMessage()
+            ], 500);
+        }
+    }
+
 }
