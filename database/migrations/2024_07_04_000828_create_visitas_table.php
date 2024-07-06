@@ -20,7 +20,7 @@ return new class extends Migration
             $table->dateTime('fechaHoraLlegada')->nullable();
             $table->dateTime('fechaHoraSalida')->nullable();
             $table->string('direccion');
-            $table->boolean('estatus');
+            $table->string('estatus');
             $table->unsignedBigInteger('cliente_id');
             $table->foreign('cliente_id')->references('id')->on('clientes');
             $table->unsignedBigInteger('tecnico_id');

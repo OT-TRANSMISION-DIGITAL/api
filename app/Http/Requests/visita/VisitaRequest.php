@@ -27,7 +27,7 @@ class VisitaRequest extends FormRequest
     public function rules()
     {
         return [
-            'motivo' => 'required|string|min:3|regex:/^[a-zA-Z\s]*$/',
+            'motivo' => 'required|string|min:3|string',
             'fechaHoraSolicitud' => 'required|date_format:Y-m-d H:i:s',
             'fechaHoraLlegada' => 'nullable|date_format:Y-m-d H:i:s',
             'fechaHoraSalida' => 'nullable|date_format:Y-m-d H:i:s',
@@ -71,7 +71,6 @@ class VisitaRequest extends FormRequest
             'fechaHoraLlegada' => 'fecha y hora de llegada',
             'fechaHoraSalida' => 'fecha y hora de salida',
             'direccion' => 'dirección',
-            'estatus' => 'estatus',
             'cliente_id' => 'Cliente',
             'tecnico_id' => 'Usuario',
             'sucursal_id' => 'Sucursal',

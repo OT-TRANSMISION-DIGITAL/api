@@ -22,11 +22,11 @@ class OrdenController extends Controller
         $perPage = $request->get('perPage', 20);
         $estatus = $request->get('estatus', '');
         switch ($estatus) {
-            case 'Sin Abrobar':
-                $ordenes->where('estatus', 'Sin Abrobar');
+            case 'Sin Autorizar':
+                $ordenes->where('estatus', 'Sin Autorizar');
                 break;
-            case 'Aprobada':
-                $ordenes->where('estatus', 'Aprobada');
+            case 'Autorizada':
+                $ordenes->where('estatus', 'Autorizada');
                 break;
             case 'Finalizada':
                 $ordenes->where('estatus', 'Finalizada');
@@ -181,7 +181,7 @@ class OrdenController extends Controller
         ], 200);
     }
 
-    public function aprobar($id)
+    public function autorizar($id)
     {
         $orden = Orden::find($id);
         if (!$orden) {
@@ -192,13 +192,13 @@ class OrdenController extends Controller
 
         try {
             $orden->update([
-                'estatus' => 'Aprobada'
+                'estatus' => 'Autorizada'
             ]);
         } catch (QueryException $e) {
             Log::error('Error de consulta SQL: ' . $e->getMessage());
             return response()->json([
                 "error" => 'Error interno del servidor.',
-                "message" => "Error al Aprobar la orden."
+                "message" => "Error al Autorizar la orden."
             ], 500);
         } catch (Exception $e) {
             Log::error('Excepción no controlada: ' . $e->getMessage());
@@ -209,7 +209,7 @@ class OrdenController extends Controller
         }
 
         return response()->json([
-            'msg' => 'Orden Aprobada con éxito'
+            'msg' => 'Orden Autorizada con éxito'
         ], 200);
     }
 

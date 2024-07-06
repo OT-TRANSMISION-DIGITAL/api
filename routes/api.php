@@ -66,19 +66,18 @@ Route::get('visitas',[VisitaController::class, 'index']);
 Route::get('visitas/{id}',[VisitaController::class, 'show']);
 Route::post('visitas',[VisitaController::class, 'create']);
 Route::put('visitas/{id}',[VisitaController::class, 'update']);
-Route::delete('visitas/{id}',[VisitaController::class, 'delete']);
+Route::patch('/visitas/autorizar/{id}', [VisitaController::class, 'autorizar']);
+Route::patch('/visitas/cancelar/{id}', [VisitaController::class, 'cancelar']);
+Route::patch('/visitas/finalizar/{id}', [VisitaController::class, 'finalizar']);
 
 //ORDENES
 Route::get('ordenes',[OrdenController::class, 'index']);
 Route::get('ordenes/{id}',[OrdenController::class, 'show']);
 Route::post('ordenes',[OrdenController::class, 'create']);
 Route::put('ordenes/{id}',[OrdenController::class, 'update']);
-Route::delete('ordenes/{id}',[OrdenController::class, 'delete']);
-Route::patch('/ordenes/aprobar/{id}', [OrdenController::class, 'aprobar']);
+Route::patch('/ordenes/autorizar/{id}', [OrdenController::class, 'autorizar']);
 Route::patch('/ordenes/finalizar/{id}', [OrdenController::class, 'finalizar']);
 Route::patch('/ordenes/cancelar/{id}', [OrdenController::class, 'cancelar']);
-
-
 
 //RUTAS SIN FILTRAR
 Route::get('productosSinFiltrar',[ProductoController::class, 'productos']);
@@ -86,10 +85,6 @@ Route::get('clientesSinFiltrar',[ClienteController::class, 'clientes']);
 Route::get('sucursalesSinFiltrar',[SucursalController::class, 'sucursales']);
 Route::get('tecnicos',[UserController::class, 'tecnicos']);
 Route::get('secretarias',[UserController::class, 'secretaria']);
-
-
-
-
 
 
 Route::get('prueba',[LoginController::class, 'prueba']);
