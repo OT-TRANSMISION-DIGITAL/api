@@ -21,6 +21,7 @@ return new class extends Migration
             $table->boolean('estatus');
             $table->string('password');
             $table->string('codigo')->nullable();
+            $table->string('watch_codigo')->nullable();
             $table->string('img')->nullable();
             $table->unsignedBigInteger('rol_id');
             $table->rememberToken();
