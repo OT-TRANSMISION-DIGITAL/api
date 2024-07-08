@@ -2,6 +2,7 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\watchApp\LoginController as LoginWatch;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\SucursalController;
@@ -31,6 +32,9 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 Route::get('/logout',[LoginController::class,'logout'])->middleware('auth:sanctum');
 Route::post('login',[LoginController::class, 'login']);
 Route::post('validarCodigo/{id}',[LoginController::class, 'validarCodigo'])->name('validarCodigo')->middleware('signed');
+//RUTAS PARA AUTENTICACION WATCH
+Route::post('generateCode/{id}',[LoginWatch::class, 'generateCode'])->name('generateCode');
+Route::post('validateCode',[LoginWatch::class, 'validateCode'])->name('validateCode');
 
 //USUARIOS
 Route::post('registrar',[UserController::class, 'create']);
