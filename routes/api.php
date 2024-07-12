@@ -90,5 +90,8 @@ Route::get('sucursalesSinFiltrar',[SucursalController::class, 'sucursales']);
 Route::get('tecnicos',[UserController::class, 'tecnicos']);
 Route::get('secretarias',[UserController::class, 'secretaria']);
 
+//agenda
+Route::get('agenda',[VisitaController::class, 'agenda']);
+
 
 Route::get('prueba',[LoginController::class, 'prueba']);
