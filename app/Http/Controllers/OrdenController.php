@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Log;
 use App\Http\Requests\Orden\OrdenRequest;
 use Illuminate\Database\QueryException;
 use App\Models\OrdenDetalle;
+use App\Http\Controllers\PdfController;
 
 class OrdenController extends Controller
 {
@@ -274,6 +275,32 @@ class OrdenController extends Controller
         return response()->json([
             'msg' => 'Orden Cancelada con éxito'
         ], 200);
+    }
+
+    public function generatePdf(Request $request)
+    {
+        $view = 'PDFS.ordenesServicio';
+        $PdfController = new PdfController();
+
+        // Obtener los datos de la solicitud
+        $dataArray = $request->input(); // Obtener todo el contenido del request
+
+        // Validar que los datos sean un array y contengan la clave 'data'
+        if (!is_array($dataArray) || empty($dataArray)) {
+            return response()->json(['error' => 'Formato de datos inválido.'], 400);
+        }
+
+        // Extraer el contenido de 'data' de cada objeto del array
+        $data = [];
+        foreach ($dataArray as $item) {
+            if (isset($item['data'])) {
+                $data[] = $item['data'];
+            } else {
+                return response()->json(['error' => 'Datos faltantes en uno de los elementos.'], 400);
+            }
+        }
+        // Parámetros - nombre del archivo, vista a la que va a hacer referencia, datos que va a mostrar en el PDF
+        return $PdfController->generatePdf('ordenes', $view, $data);
     }
 }
 
