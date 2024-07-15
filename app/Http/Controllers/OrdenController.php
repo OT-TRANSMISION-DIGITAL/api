@@ -290,17 +290,17 @@ class OrdenController extends Controller
             return response()->json(['error' => 'Formato de datos inválido.'], 400);
         }
 
-        // Extraer el contenido de 'data' de cada objeto del array
+        // Extraer el contenido de 'data' del primer objeto del array
         $data = [];
-        foreach ($dataArray as $item) {
-            if (isset($item['data'])) {
-                $data[] = $item['data'];
-            } else {
-                return response()->json(['error' => 'Datos faltantes en uno de los elementos.'], 400);
-            }
+        if (isset($dataArray[0]['data'])) {
+            $data = $dataArray[0]['data'];
+        } else {
+            return response()->json(['error' => 'Datos faltantes en la solicitud.'], 400);
         }
+
         // Parámetros - nombre del archivo, vista a la que va a hacer referencia, datos que va a mostrar en el PDF
         return $PdfController->generatePdf('ordenes', $view, $data);
     }
+
 }
 
