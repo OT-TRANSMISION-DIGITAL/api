@@ -59,17 +59,7 @@ class RegisterRequest extends FormRequest
      * Get custom attributes for validator errors.
      *
      * @return array<string, string>
-     */
-    public function attributes(): array
-    {
-        return [
-            'nombre' => 'nombre',
-            'correo' => 'correo',
-            'telefono' => 'teléfono',
-            'password' => 'contraseña',
-            'rol_id' => 'rol',
-        ];
-    }
+*/
 
     protected function failedValidation(\Illuminate\Contracts\Validation\Validator $validator)
     {

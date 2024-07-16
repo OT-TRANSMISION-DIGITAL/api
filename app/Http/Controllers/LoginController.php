@@ -49,10 +49,12 @@ class LoginController extends Controller
         }
 
         //Si el usuario no existe o se equivoco en la contraseña
-        if ($user == null && !Hash::check($validateData['password'], $user->password)) return response()->json([
+        if ($user == null) return response()->json([
             "msg"=>"credenciales incorrectas",
             ],400);
-
+        if(!Hash::check($validateData['password'], $user->password)) return response()->json([
+            "msg"=>"credenciales incorrectas",
+            ],400);
         // Si el usuario no es un administrador, autenticarlo
         if (!($user->rol_id == 1)) return response()->json([
             'token' => $user->createToken("auth_token")->plainTextToken,
