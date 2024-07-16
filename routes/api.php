@@ -10,6 +10,7 @@ use App\Http\Controllers\ClienteController;
 use App\Http\Controllers\ProductoController;
 use App\Http\Controllers\VisitaController;
 use App\Http\Controllers\OrdenController;
+use App\Http\Controllers\PdfController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -82,6 +83,7 @@ Route::put('ordenes/{id}',[OrdenController::class, 'update']);
 Route::patch('/ordenes/autorizar/{id}', [OrdenController::class, 'autorizar']);
 Route::patch('/ordenes/finalizar/{id}', [OrdenController::class, 'finalizar']);
 Route::patch('/ordenes/cancelar/{id}', [OrdenController::class, 'cancelar']);
+Route::get('/ordeneServicios/generarPdf',[OrdenController::class, 'generatePdf']);
 
 //RUTAS SIN FILTRAR
 Route::get('productosSinFiltrar',[ProductoController::class, 'productos']);
@@ -89,6 +91,9 @@ Route::get('clientesSinFiltrar',[ClienteController::class, 'clientes']);
 Route::get('sucursalesSinFiltrar',[SucursalController::class, 'sucursales']);
 Route::get('tecnicos',[UserController::class, 'tecnicos']);
 Route::get('secretarias',[UserController::class, 'secretaria']);
+
+//agenda
+Route::get('agenda',[VisitaController::class, 'agenda']);
 
 
 Route::get('prueba',[LoginController::class, 'prueba']);

@@ -9,6 +9,8 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Log;
 use App\Http\Requests\Visita\VisitaRequest;
 use Illuminate\Database\QueryException;
+use App\Models\Orden;
+use App\Models\User;
 
 class VisitaController extends Controller
 {
@@ -252,5 +254,55 @@ class VisitaController extends Controller
         return response()->json([
             'msg' => 'Visita cancelada con éxito'
         ], 200);
+    }
+
+    public function agenda(Request $request)
+    {
+        $fechaHoy = date('Y-m-d');
+        //Si no hay fecha se toma la de hoy
+        $fecha = $request->get('fecha', $fechaHoy);
+        //Si no hay tipo se toma el de ordenes
+        $tipo = $request->get('tipo', 'ordenes');
+        //id del tecnico
+        $tecnico = $request->get('tecnico', null);
+
+
+        $ordenes = Orden::select('id', 'fechaHoraSolicitud', 'estatus','tecnico_id')
+        ->whereDate('fechaHoraSolicitud', '=', $fecha)
+        ->where('estatus', '!=', 'Sin Autorizar');
+        $visitas = Visita::select('id', 'fechaHoraSolicitud', 'estatus','tecnico_id')
+        ->whereDate('fechaHoraSolicitud', '=', $fecha)
+        ->where('estatus', '!=', 'Sin Autorizar');
+
+        if($tecnico != null){
+            if(User::find($tecnico) == null){
+                return response()->json([
+                    'msg' => 'El tecnico no existe',
+                ], 404);
+            }
+            $ordenes->where('tecnico_id','=',$tecnico);
+            $visitas->where('tecnico_id','=',$tecnico);
+        }
+        else{
+            $ordenes->with('tecnico');
+            $visitas->with('tecnico');
+        }
+
+        try {
+            if($tipo == 'ordenes'){
+            $ordenes = $ordenes->get();
+            return response()->json($ordenes, 200);
+            }
+            else{
+            $visitas = $visitas->get();
+            return response()->json($visitas, 200);
+            }
+        } catch (Exception $e) {
+            Log::error($e->getMessage());
+            return response()->json([
+                "msg" => "Error al obtener la agenda",
+                "error" => $e->getMessage()
+            ], 500);
+        }
     }
 }
