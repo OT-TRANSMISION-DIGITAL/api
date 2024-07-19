@@ -7,6 +7,8 @@ use App\Http\Controllers\Controller;
 // Use Requests
 use Illuminate\Http\Request;
 use App\Http\Requests\Auth\RegisterRequest;
+use App\Http\Requests\Imagen\ImagenRequest;
+
 // Use Models
 use App\Models\User;
 use App\Models\Rol;
@@ -88,7 +90,7 @@ class UserController extends Controller
 
     public function index(Request $request)
     {
-        $usuarios = User::select('id','nombre', 'correo', 'telefono', 'rol_id')->where('estatus', true)->with('rol');
+        $usuarios = User::select('id','nombre', 'correo', 'telefono', 'img', 'rol_id')->where('estatus', true)->with('rol');
         $page = $request->get('page', 1);
         $perPage = $request->get('perPage', 20);
         $offset = $page == 1 ? 0 : $perPage * ($page - 1);
@@ -118,7 +120,7 @@ class UserController extends Controller
     }
 
     public function show($id){
-        $user = User::select('id','nombre', 'correo', 'telefono', 'rol_id')->with('rol')->find($id);
+        $user = User::select('id','nombre', 'correo', 'telefono', 'img' , 'rol_id')->with('rol')->find($id);
         if(!$user){
             return response()->json([
                 'msg' => 'Usuario no encontrado',
@@ -216,6 +218,112 @@ class UserController extends Controller
                 "error" => $e->getMessage()
             ], 500);
         }
+    }
+
+    //Este metodo es para insertar y actualizar la imagen, si tiene una imagen antes, la borra 
+    public function insertImagen(ImagenRequest $request, $id)
+    {
+        $validatedData = $request->validated();
+
+        $User = User::find($id);
+
+        if (!$User) {
+            return response()->json([
+                'msg' => 'Usuario no encontrado',
+            ], 404);
+        }
+
+        $image = $validatedData['img'];
+        $originalName = pathinfo($image->getClientOriginalName(), PATHINFO_FILENAME);
+        $originalName = str_replace(' ', '_', $originalName);
+        $timestamp = date('YmdHis');
+        $extension = $image->getClientOriginalExtension();
+        $name = $originalName . $timestamp . '.' . $extension;
+        $destinationPath = public_path('/imagenes/usuarios');
+        if ($image->move($destinationPath, $name)) {
+            $validatedData['img'] = env('URL_USUARIOS') . 'usuarios/' . $name;
+
+            // Eliminar la imagen anterior si existe
+            if ($User->img) {
+                $oldImagePath = public_path('/imagenes/usuarios/' . basename($User->img));
+                if (file_exists($oldImagePath)) {
+                    unlink($oldImagePath);
+                }
+            }
+        } else {
+            return response()->json([
+                'msg' => 'Error al subir la imagen',
+            ], 500);
+        }
+
+        try {
+            $User->update([
+                'img' => $validatedData['img']
+            ]);
+        } catch (QueryException $e) {
+            // Manejo de la excepción de consulta SQL
+            Log::error('Error de consulta SQL: ' . $e->getMessage());
+            return response()->json([
+                "error" => 'Error interno del servidor.',
+                "message" => "Error al guardar la imagen del Usuario."
+            ], 500);
+        } catch (Exception $e) {
+            // Manejo de cualquier otra excepción no prevista
+            Log::error('Excepción no controlada: ' . $e->getMessage());
+            return response()->json([
+                "error" => 'Error interno del servidor.',
+                "message" => "No se pudo resolver la petición."
+            ], 500);
+        }
+
+        return response()->json([
+            'msg' => 'Imagen guardada con exito',
+            'User' => $User->id
+        ], 200);
+    }
+
+    public function deleteImagen($id)
+    {
+        $User = User::find($id);
+
+        if (!$User) {
+            return response()->json([
+                'msg' => 'User no encontrado',
+            ], 404);
+        }
+
+
+        if($User->img != null){
+        $oldImagePath = public_path('/imagenes/usuarios/' . basename($User->img));
+        if (file_exists($oldImagePath)) {
+            unlink($oldImagePath);
+        }            
+        }
+
+        try {
+            $User->update([
+                'img' => null
+            ]);
+        } catch (QueryException $e) {
+            // Manejo de la excepción de consulta SQL
+            Log::error('Error de consulta SQL: ' . $e->getMessage());
+            return response()->json([
+                "error" => 'Error interno del servidor.',
+                "message" => "Error al eliminar la imagen del Usuario."
+            ], 500);
+        } catch (Exception $e) {
+            // Manejo de cualquier otra excepción no prevista
+            Log::error('Excepción no controlada: ' . $e->getMessage());
+            return response()->json([
+                "error" => 'Error interno del servidor.',
+                "message" => "No se pudo resolver la petición."
+            ], 500);
+        }
+
+        return response()->json([
+            'msg' => 'Imagen eliminada con exito',
+            'User' => $User->id
+        ], 200);
     }
 
 }

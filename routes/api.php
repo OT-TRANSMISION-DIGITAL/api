@@ -44,6 +44,8 @@ Route::get('usuarios',[UserController::class, 'index']);
 Route::get('usuarios/{id}',[UserController::class, 'show']);
 Route::put('usuarios/{id}',[UserController::class, 'update']);
 Route::delete('usuarios/{id}',[UserController::class, 'delete']);
+Route::post('usuarios/guardarImagen/{id}',[UserController::class, 'insertImagen']);
+Route::delete('usuarios/deleteImagen/{id}',[UserController::class, 'deleteImagen']);
 
 //CLIENTES
 Route::get('clientes',[ClienteController::class, 'index']);
@@ -65,6 +67,9 @@ Route::get('productos/{id}',[ProductoController::class, 'show']);
 Route::post('productos',[ProductoController::class, 'create']);
 Route::put('productos/{id}',[ProductoController::class, 'update']);
 Route::delete('productos/{id}',[ProductoController::class, 'delete']);
+Route::post('productos/guardarImagen/{id}',[ProductoController::class, 'insertImagen']);
+Route::delete('productos/deleteImagen/{id}',[ProductoController::class, 'deleteImagen']);
+
 
 //VISITAS
 Route::get('visitas',[VisitaController::class, 'index']);

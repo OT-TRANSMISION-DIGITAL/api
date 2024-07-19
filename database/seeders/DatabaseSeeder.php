@@ -22,19 +22,39 @@ class DatabaseSeeder extends Seeder
 
         // Seeders
         $this->call(RolesSeeder::class);
-        User::create([
-            'nombre' => "Admin",
-            'correo' => "amvr130@gmail.com",
-            'telefono' => "8790123456",
-            'password' => Hash::make("12345678"),
-            'rol_id' => 1,
-            'estatus' => true
+        User::insert([
+            [
+                'nombre' => "Angel",
+                'correo' => "amvr130@gmail.com",
+                'telefono' => "8790123456",
+                'password' => Hash::make("12345678"),
+                'rol_id' => 1,
+                'estatus' => true
+            ],
+            [
+                'nombre' => "Eder",
+                'correo' => "egmr.49@gmail.com",
+                'telefono' => "8714149701",
+                'password' => Hash::make("87654321"),
+                'rol_id' => 3,
+                'estatus' => true
+            ],
+            [
+                'nombre' => "Gerardo",
+                'correo' => "egmr.90@outlook.com",
+                'telefono' => "8714149801",
+                'password' => Hash::make("87654321"),
+                'rol_id' => 1,
+                'estatus' => true
+            ],
+            [
+                'nombre' => "Marcela",
+                'correo' => "marcelacasesc@gmail.com",
+                'telefono' => "8790123457",
+                'password' => Hash::make("87654321"),
+                'rol_id' => 1,
+                'estatus' => true
+            ]
         ]);
-        // \App\Models\User::factory(10)->create();
-
-        // \App\Models\User::factory()->create([
-        //     'name' => 'Test User',
-        //     'email' => 'test@example.com',
-        // ]);
     }
 }
