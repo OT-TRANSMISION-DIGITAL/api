@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Log;
 use App\Http\Requests\Orden\OrdenRequest;
 use Illuminate\Database\QueryException;
 use App\Models\OrdenDetalle;
+use App\Models\User;
 use App\Http\Controllers\PdfController;
 
 class OrdenController extends Controller
@@ -22,6 +23,7 @@ class OrdenController extends Controller
         $page = $request->get('page', 1);
         $perPage = $request->get('perPage', 20);
         $estatus = $request->get('estatus', '');
+        $tecnico = $request->get('tecnico', null);
         switch ($estatus) {
             case 'Sin Autorizar':
                 $ordenes->where('estatus', 'Sin Autorizar');
@@ -37,6 +39,18 @@ class OrdenController extends Controller
                 break;
             default:
                 break;
+        }
+
+        if($tecnico != null){
+            if(User::find($tecnico) == null){
+                return response()->json([
+                    'msg' => 'El tecnico no existe',
+                ], 404);
+            }
+            $ordenes->where('tecnico_id','=',$tecnico);
+        }
+        else{
+            $ordenes->with('tecnico');
         }
 
 
