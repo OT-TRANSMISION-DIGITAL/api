@@ -10,26 +10,24 @@ use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
-class Notificaciones implements ShouldBroadcast
+class NotificacionesAdmin implements ShouldBroadcast
 {
   use Dispatchable, InteractsWithSockets, SerializesModels;
 
   public $message;
-  public $tecnico_id;
 
-  public function __construct($message, $tecnico_id)
+  public function __construct($message)
   {
       $this->message = $message;
-      $this->tecnico_id = $tecnico_id;
   }
 
   public function broadcastOn()
   {
-      return ['notificaciones'];
+      return ['notificaciones_admin'];
   }
 
   public function broadcastAs()
   {
-      return 'notificaciones';
+      return 'notificaciones_admin';
   }
 }
