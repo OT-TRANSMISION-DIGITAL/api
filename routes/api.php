@@ -102,3 +102,5 @@ Route::get('agenda',[VisitaController::class, 'agenda']);
 
 
 Route::get('prueba',[LoginController::class, 'prueba']);
+
+Route::get('noti',[VisitaController::class, 'notificacion']);

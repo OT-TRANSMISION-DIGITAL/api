@@ -11,6 +11,8 @@ use App\Http\Requests\Visita\VisitaRequest;
 use Illuminate\Database\QueryException;
 use App\Models\Orden;
 use App\Models\User;
+//Eventos
+use App\Events\Notificaciones;
 
 class VisitaController extends Controller
 {
@@ -304,5 +306,11 @@ class VisitaController extends Controller
                 "error" => $e->getMessage()
             ], 500);
         }
+    }
+    public function notificacion()
+    {
+        $message = 'hola amor';
+
+        event(new Notificaciones($message));
     }
 }
