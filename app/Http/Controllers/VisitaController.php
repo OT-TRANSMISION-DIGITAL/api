@@ -27,6 +27,7 @@ class VisitaController extends Controller
         $perPage = $request->get('perPage', 20);
         
         $estatus = $request->get('estatus', '');
+        $tecnico = $request->get('tecnico', null);
         switch ($estatus) {
             case 'Sin Autorizar':
                 $visitas->where('estatus', 'Sin Autorizar');
@@ -42,6 +43,18 @@ class VisitaController extends Controller
                 break;
             default:
                 break;
+        }
+
+        if($tecnico != null){
+            if(User::find($tecnico) == null){
+                return response()->json([
+                    'msg' => 'El tecnico no existe',
+                ], 404);
+            }
+            $visitas->where('tecnico_id','=',$tecnico);
+        }
+        else{
+            $visitas->with('tecnico');
         }
 
         $offset = $page == 1 ? 0 : $perPage * ($page - 1);
