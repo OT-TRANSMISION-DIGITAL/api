@@ -4,13 +4,19 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Orden;
+use App\Models\User;
 use Exception;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Log;
 use App\Http\Requests\Orden\OrdenRequest;
 use Illuminate\Database\QueryException;
 use App\Models\OrdenDetalle;
+use App\Models\User;
 use App\Http\Controllers\PdfController;
+
+//Eventos
+use App\Events\Notificaciones;
+use App\Events\NotificacionesAdmin;
 
 class OrdenController extends Controller
 {
@@ -22,6 +28,7 @@ class OrdenController extends Controller
         $page = $request->get('page', 1);
         $perPage = $request->get('perPage', 20);
         $estatus = $request->get('estatus', '');
+        $tecnico = $request->get('tecnico', null);
         switch ($estatus) {
             case 'Sin Autorizar':
                 $ordenes->where('estatus', 'Sin Autorizar');
@@ -37,6 +44,18 @@ class OrdenController extends Controller
                 break;
             default:
                 break;
+        }
+
+        if($tecnico != null){
+            if(User::find($tecnico) == null){
+                return response()->json([
+                    'msg' => 'El tecnico no existe',
+                ], 404);
+            }
+            $ordenes->where('tecnico_id','=',$tecnico);
+        }
+        else{
+            $ordenes->with('tecnico');
         }
 
 
@@ -209,6 +228,11 @@ class OrdenController extends Controller
             ], 500);
         }
 
+        //NOTIFICACION PARA EL TECNICO CUANDO SE AUTORIZA UNA ORDEN
+        $message = 'Tienes una nueva orden asignada #' . $orden->id;
+
+        event(new Notificaciones($message, $orden->tecnico_id));
+
         return response()->json([
             'msg' => 'Orden Autorizada con éxito'
         ], 200);
@@ -239,6 +263,13 @@ class OrdenController extends Controller
                 "message" => "No se pudo resolver la petición."
             ], 500);
         }
+
+        $tecnico = User::find($orden->tecnico_id);
+
+        //NOTIFICACION PARA EL ADMIN CUANDO UNA VISITA SE FINALIZO
+        $message = 'El tecnico ' . $tecnico->nombre . ' ha finalizado la orden #' . $orden->id;
+
+        event(new NotificacionesAdmin($message));
 
         return response()->json([
             'msg' => 'Orden Finalizada con éxito'

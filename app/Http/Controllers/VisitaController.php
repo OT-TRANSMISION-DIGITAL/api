@@ -11,6 +11,9 @@ use App\Http\Requests\Visita\VisitaRequest;
 use Illuminate\Database\QueryException;
 use App\Models\Orden;
 use App\Models\User;
+//Eventos
+use App\Events\Notificaciones;
+use App\Events\NotificacionesAdmin;
 
 class VisitaController extends Controller
 {
@@ -24,6 +27,7 @@ class VisitaController extends Controller
         $perPage = $request->get('perPage', 20);
         
         $estatus = $request->get('estatus', '');
+        $tecnico = $request->get('tecnico', null);
         switch ($estatus) {
             case 'Sin Autorizar':
                 $visitas->where('estatus', 'Sin Autorizar');
@@ -39,6 +43,18 @@ class VisitaController extends Controller
                 break;
             default:
                 break;
+        }
+
+        if($tecnico != null){
+            if(User::find($tecnico) == null){
+                return response()->json([
+                    'msg' => 'El tecnico no existe',
+                ], 404);
+            }
+            $visitas->where('tecnico_id','=',$tecnico);
+        }
+        else{
+            $visitas->with('tecnico');
         }
 
         $offset = $page == 1 ? 0 : $perPage * ($page - 1);
@@ -186,6 +202,10 @@ class VisitaController extends Controller
                 "message" => "No se pudo resolver la petición."
             ], 500);
         }
+        //NOTIFICACION PARA EL TECNICO CUANDO SE AUTORIZA UNA VISITA
+        $message = 'Tienes una nueva visita asignada #' . $visita->id;
+
+        event(new Notificaciones($message, $visita->tecnico_id));
 
         return response()->json([
             'msg' => 'Visita autorizada con éxito'
@@ -218,6 +238,13 @@ class VisitaController extends Controller
                 "message" => "No se pudo resolver la petición."
             ], 500);
         }
+
+        $tecnico = User::find($visita->tecnico_id);
+
+        //NOTIFICACION PARA EL ADMIN CUANDO UNA VISITA SE FINALIZO
+        $message = 'El tecnico ' . $tecnico->nombre . ' ha finalizado la visita #' . $visita->id;
+
+        event(new NotificacionesAdmin($message));
 
         return response()->json([
             'msg' => 'Visita finalizada con éxito'
@@ -305,5 +332,13 @@ class VisitaController extends Controller
                 "error" => $e->getMessage()
             ], 500);
         }
+    }
+    
+    public function notificacion()
+    {
+        $message = 'prueba notificaciones';
+
+        event(new Notificaciones($message, 1));
+        event(new NotificacionesAdmin($message));
     }
 }
