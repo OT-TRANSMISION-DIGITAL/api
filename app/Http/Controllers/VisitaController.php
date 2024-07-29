@@ -266,14 +266,15 @@ class VisitaController extends Controller
         //id del tecnico
         $tecnico = $request->get('tecnico', null);
 
-
+        
         $ordenes = Orden::select('id', 'fechaHoraSolicitud', 'estatus','tecnico_id')
-        ->whereDate('fechaHoraSolicitud', '=', $fecha)
-        ->where('estatus', '!=', 'Sin Autorizar');
+//        ->whereDate('fechaHoraSolicitud', '=', $fecha)
+        ->where('estatus', '!=', 'Sin Autorizar')
+        ;
         $visitas = Visita::select('id', 'fechaHoraSolicitud', 'estatus','tecnico_id')
-        ->whereDate('fechaHoraSolicitud', '=', $fecha)
-        ->where('estatus', '!=', 'Sin Autorizar');
-
+  //      ->whereDate('fechaHoraSolicitud', '=', $fecha)
+        ->where('estatus', '!=', 'Sin Autorizar')
+        ;
         if($tecnico != null){
             if(User::find($tecnico) == null){
                 return response()->json([
