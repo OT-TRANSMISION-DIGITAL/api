@@ -29,6 +29,8 @@ class OrdenController extends Controller
         $perPage = $request->get('perPage', 20);
         $estatus = $request->get('estatus', '');
         $tecnico = $request->get('tecnico', null);
+        $fecha = $request->get('fecha', null);
+
         switch ($estatus) {
             case 'Sin Autorizar':
                 $ordenes->where('estatus', 'Sin Autorizar');
@@ -55,6 +57,10 @@ class OrdenController extends Controller
             $ordenes->where('tecnico_id', '=', $tecnico);
         } else {
             $ordenes->with('tecnico');
+        }
+
+        if ($fecha != null) {
+            $ordenes->whereDate('fechaHoraSolicitud', $fecha);
         }
 
 
