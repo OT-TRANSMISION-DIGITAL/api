@@ -10,6 +10,7 @@ class PdfController extends Controller
     public function generatePdf($filename, $view, $data){
         try {
             $pdf = Pdf::loadView($view, ['data' => $data]);
+            $pdf->setPaper('A4', 'portrait');
             return $pdf->download($filename.'.pdf');
         }
         catch (Exception $e) {

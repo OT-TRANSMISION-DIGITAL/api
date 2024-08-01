@@ -11,7 +11,6 @@ use Illuminate\Support\Facades\Log;
 use App\Http\Requests\Orden\OrdenRequest;
 use Illuminate\Database\QueryException;
 use App\Models\OrdenDetalle;
-use App\Models\User;
 use App\Http\Controllers\PdfController;
 
 //Eventos
@@ -312,23 +311,57 @@ class OrdenController extends Controller
     {
         $view = 'PDFS.ordenesServicio';
         $PdfController = new PdfController();
-
-        // Obtener los datos de la solicitud
-        $dataArray = $request->input(); // Obtener todo el contenido del request
-
-        // Validar que los datos sean un array y contengan la clave 'data'
-        if (!is_array($dataArray) || empty($dataArray)) {
-            return response()->json(['error' => 'Formato de datos inválido.'], 400);
+        $idOrden = $request->id;
+        try {
+            $orden = Orden::with(['cliente', 'tecnico', 'sucursal', 'detalles.producto'])->find($idOrden);
+        } catch (\Throwable $th) {
+            return response()->json(['error' => 'Error al obtener la orden.'], 400);
         }
+        if(!$orden)
+            return response()->json(['error' => 'Orden no encontrada.'], 404);
 
-        // Extraer el contenido de 'data' del primer objeto del array
-        $data = [];
-        if (isset($dataArray[0]['data'])) {
-            $data = $dataArray[0]['data'];
-        } else {
-            return response()->json(['error' => 'Datos faltantes en la solicitud.'], 400);
+        $fecha = explode('-', explode(' ', $orden->fechaHoraSolicitud)[0]);
+        $detalle = [];
+        $iva = 0.16;
+        $subtotal = 0;
+        foreach ($orden->detalles as $item) {
+            $subtotal += $item->cantidad * $item->producto->precio;
+            $detalle[] = [
+                'cantidad' => '$'.number_format($item->cantidad),
+                'producto' => $item->producto->nombre,
+                'unidad' => 'Unitario',
+                'precio' => '$'.number_format($item->producto->precio),
+                'total' => '$'.number_format($item->cantidad * $item->producto->precio, 2),
+            ];
         }
-
+        $total = $subtotal + ($subtotal * $iva);
+        // Si el detalle tiene menos de 14 elementos, se agregan elementos vacíos para que el PDF se vea bien
+        if(count($detalle) < 17){
+            for ($i = count($detalle); $i < 17; $i++) {
+                $detalle[] = [
+                    'cantidad' => '',
+                    'producto' => '',
+                    'unidad' => '',
+                    'precio' => '',
+                    'total' => '',
+                ];
+            }
+        }
+        $data = [
+            'empresa' => $orden->sucursal->nombre,
+            'persona_solicita' => $orden->persona_solicitante,
+            'direccion' => $orden->direccion,
+            'telefono' => $orden->cliente->telefono,
+            'receptor' => $orden->tecnico->nombre,
+            'fecha' => $fecha,
+            'folio' => $orden->id,
+            'nota' => '',
+            'orden' => $detalle,
+            'iva' => number_format($iva * 100).'%',
+            'subtotal' => '$'.number_format($subtotal, 2),
+            'total' => '$'.number_format($total, 2),
+        ];
+        // return response()->json($data);
         // Parámetros - nombre del archivo, vista a la que va a hacer referencia, datos que va a mostrar en el PDF
         return $PdfController->generatePdf('ordenes', $view, $data);
     }
