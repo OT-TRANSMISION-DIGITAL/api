@@ -31,7 +31,11 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 
 //RUTAS PARA AUTENTICACION
 Route::get('/logout',[LoginController::class,'logout'])->middleware('auth:sanctum');
+//Este login es para movil y web
 Route::post('login',[LoginController::class, 'login']);
+//Este login es para escritorio
+Route::post('loginDesk',[LoginController::class, 'loginDesk']);
+
 Route::post('validarCodigo/{id}',[LoginController::class, 'validarCodigo'])->name('validarCodigo')->middleware('signed');
 //RUTAS PARA AUTENTICACION WATCH
 Route::post('generateCode/{id}',[LoginWatch::class, 'generateCode'])->name('generateCode');
