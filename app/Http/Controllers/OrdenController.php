@@ -11,8 +11,8 @@ use Illuminate\Support\Facades\Log;
 use App\Http\Requests\Orden\OrdenRequest;
 use Illuminate\Database\QueryException;
 use App\Models\OrdenDetalle;
-use App\Models\User;
 use App\Http\Controllers\PdfController;
+use App\Http\Requests\Imagen\FirmaRequest;
 
 //Eventos
 use App\Events\Notificaciones;
@@ -46,15 +46,14 @@ class OrdenController extends Controller
                 break;
         }
 
-        if($tecnico != null){
-            if(User::find($tecnico) == null){
+        if ($tecnico != null) {
+            if (User::find($tecnico) == null) {
                 return response()->json([
                     'msg' => 'El tecnico no existe',
                 ], 404);
             }
-            $ordenes->where('tecnico_id','=',$tecnico);
-        }
-        else{
+            $ordenes->where('tecnico_id', '=', $tecnico);
+        } else {
             $ordenes->with('tecnico');
         }
 
@@ -238,7 +237,8 @@ class OrdenController extends Controller
         ], 200);
     }
 
-    public function finalizar($id){
+    public function finalizar($id)
+    {
         $orden = Orden::find($id);
         if (!$orden) {
             return response()->json([
@@ -333,5 +333,109 @@ class OrdenController extends Controller
         return $PdfController->generatePdf('ordenes', $view, $data);
     }
 
-}
+    //Este metodo es para insertar y cambiar la imagen, si tiene una imagen antes, la borra 
+    public function guardarFirma(FirmaRequest $request, $id)
+    {
+        $validatedData = $request->validated();
 
+        $Orden = Orden::find($id);
+
+        if (!$Orden) {
+            return response()->json([
+                'msg' => 'Orden no encontrada',
+            ], 404);
+        }
+
+        $image = $validatedData['firma'];
+        $originalName = pathinfo($image->getClientOriginalName(), PATHINFO_FILENAME);
+        $originalName = str_replace(' ', '_', $originalName);
+        $timestamp = date('YmdHis');
+        $extension = $image->getClientOriginalExtension();
+        $name = $originalName . $timestamp . '.' . $extension;
+        $destinationPath = public_path('/imagenes/firmas');
+        if ($image->move($destinationPath, $name)) {
+            $validatedData['firma'] = env('URL_IMAGENES') . 'firmas/' . $name;
+
+            // Eliminar la imagen anterior si existe
+            if ($Orden->firma) {
+                $oldImagePath = public_path('/imagenes/firmas/' . basename($Orden->firma));
+                if (file_exists($oldImagePath)) {
+                    unlink($oldImagePath);
+                }
+            }
+        } else {
+            return response()->json([
+                'msg' => 'Error al subir la firma',
+            ], 500);
+        }
+
+        try {
+            $Orden->update([
+                'firma' => $validatedData['firma']
+            ]);
+        } catch (QueryException $e) {
+            // Manejo de la excepción de consulta SQL
+            Log::error('Error de consulta SQL: ' . $e->getMessage());
+            return response()->json([
+                "error" => 'Error interno del servidor.',
+                "message" => "Error al guardar la firma."
+            ], 500);
+        } catch (Exception $e) {
+            // Manejo de cualquier otra excepción no prevista
+            Log::error('Excepción no controlada: ' . $e->getMessage());
+            return response()->json([
+                "error" => 'Error interno del servidor.',
+                "message" => "No se pudo resolver la petición."
+            ], 500);
+        }
+
+        return response()->json([
+            'msg' => 'Firma guardada con exito',
+            'Orden' => $Orden->id
+        ], 200);
+    }
+
+    public function eliminarFirma($id)
+    {
+        $Orden = Orden::find($id);
+
+        if (!$Orden) {
+            return response()->json([
+                'msg' => 'Orden no encontrado',
+            ], 404);
+        }
+
+
+        if ($Orden->firma != null) {
+            $oldImagePath = public_path('/imagenes/firmas/' . basename($Orden->firma));
+            if (file_exists($oldImagePath)) {
+                unlink($oldImagePath);
+            }
+        }
+
+        try {
+            $Orden->update([
+                'firma' => null
+            ]);
+        } catch (QueryException $e) {
+            // Manejo de la excepción de consulta SQL
+            Log::error('Error de consulta SQL: ' . $e->getMessage());
+            return response()->json([
+                "error" => 'Error interno del servidor.',
+                "message" => "Error al eliminar la firma."
+            ], 500);
+        } catch (Exception $e) {
+            // Manejo de cualquier otra excepción no prevista
+            Log::error('Excepción no controlada: ' . $e->getMessage());
+            return response()->json([
+                "error" => 'Error interno del servidor.',
+                "message" => "No se pudo resolver la petición."
+            ], 500);
+        }
+
+        return response()->json([
+            'msg' => 'Firma eliminada con exito',
+            'Orden' => $Orden->id
+        ], 200);
+    }
+}

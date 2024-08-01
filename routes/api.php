@@ -89,6 +89,8 @@ Route::patch('/ordenes/autorizar/{id}', [OrdenController::class, 'autorizar']);
 Route::patch('/ordenes/finalizar/{id}', [OrdenController::class, 'finalizar']);
 Route::patch('/ordenes/cancelar/{id}', [OrdenController::class, 'cancelar']);
 Route::get('/ordeneServicios/generarPdf',[OrdenController::class, 'generatePdf']);
+Route::post('ordenes/guardarFirma/{id}',[OrdenController::class, 'guardarFirma']);
+Route::delete('ordenes/eliminarFirma/{id}',[OrdenController::class, 'eliminarFirma']);
 
 //RUTAS SIN FILTRAR
 Route::get('productosSinFiltrar',[ProductoController::class, 'productos']);
