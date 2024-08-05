@@ -13,6 +13,7 @@ class Orden extends Model
     protected $fillable = [
         'persona_solicitante',
         'puesto',
+        'firma',
         'fechaHoraSolicitud',
         'fechaHoraLlegada',
         'fechaHoraSalida',

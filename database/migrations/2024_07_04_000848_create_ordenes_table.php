@@ -22,6 +22,7 @@ return new class extends Migration
             $table->string('puesto')->nullable();
             $table->string('direccion');
             $table->string('estatus');
+            $table->string('firma')->nullable();
             $table->unsignedBigInteger('cliente_id');
             $table->foreign('cliente_id')->references('id')->on('clientes');
             $table->unsignedBigInteger('tecnico_id');

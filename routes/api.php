@@ -31,7 +31,11 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 
 //RUTAS PARA AUTENTICACION
 Route::get('/logout',[LoginController::class,'logout'])->middleware('auth:sanctum');
+//Este login es para movil y web
 Route::post('login',[LoginController::class, 'login']);
+//Este login es para escritorio
+Route::post('loginDesk',[LoginController::class, 'loginDesk']);
+
 Route::post('validarCodigo/{id}',[LoginController::class, 'validarCodigo'])->name('validarCodigo')->middleware('signed');
 //RUTAS PARA AUTENTICACION WATCH
 Route::post('generateCode/{id}',[LoginWatch::class, 'generateCode'])->name('generateCode');
@@ -88,7 +92,13 @@ Route::put('ordenes/{id}',[OrdenController::class, 'update']);
 Route::patch('/ordenes/autorizar/{id}', [OrdenController::class, 'autorizar']);
 Route::patch('/ordenes/finalizar/{id}', [OrdenController::class, 'finalizar']);
 Route::patch('/ordenes/cancelar/{id}', [OrdenController::class, 'cancelar']);
+<<<<<<< HEAD
 Route::get('/ordeneServicios/generarPdf/{id}',[OrdenController::class, 'generatePdf']);
+=======
+Route::get('/ordeneServicios/generarPdf',[OrdenController::class, 'generatePdf']);
+Route::post('ordenes/guardarFirma/{id}',[OrdenController::class, 'guardarFirma']);
+Route::delete('ordenes/eliminarFirma/{id}',[OrdenController::class, 'eliminarFirma']);
+>>>>>>> ec92b81be91740aaf845198f5f6327dac5498c57
 
 //RUTAS SIN FILTRAR
 Route::get('productosSinFiltrar',[ProductoController::class, 'productos']);

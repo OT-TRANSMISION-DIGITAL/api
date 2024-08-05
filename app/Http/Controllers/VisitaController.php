@@ -28,6 +28,8 @@ class VisitaController extends Controller
         
         $estatus = $request->get('estatus', '');
         $tecnico = $request->get('tecnico', null);
+        $fecha = $request->get('fecha', null);
+        
         switch ($estatus) {
             case 'Sin Autorizar':
                 $visitas->where('estatus', 'Sin Autorizar');
@@ -55,6 +57,10 @@ class VisitaController extends Controller
         }
         else{
             $visitas->with('tecnico');
+        }
+
+        if($fecha != null){
+            $visitas->whereDate('fechaHoraSolicitud', '=', $fecha);
         }
 
         $offset = $page == 1 ? 0 : $perPage * ($page - 1);

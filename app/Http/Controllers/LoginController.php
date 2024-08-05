@@ -26,7 +26,7 @@ use Exception;
 class LoginController extends Controller
 {
 
-    public function login(LoginRequest $request): \Illuminate\Http\JsonResponse
+    public function loginNoUtilizado(LoginRequest $request): \Illuminate\Http\JsonResponse
     {
         $validateData = $request->validated();
         try {
@@ -50,29 +50,36 @@ class LoginController extends Controller
 
         //Si el usuario no existe
         if ($user == null) return response()->json([
-            "msg"=>"credenciales incorrectas",
-            ],400);
+            "msg" => "credenciales incorrectas",
+        ], 400);
 
         //Si el usuario se equivoco en la contraseña
+<<<<<<< HEAD
         if(!Hash::check($request->password, $user->password)) return response()->json([
             "msg"=>"credenciales incorrectas",
             ],400);
+=======
+        if (!Hash::check($request->password, $user->password)) return response()->json([
+            "msg" => "credenciales incorrectas",
+        ], 400);
+
+>>>>>>> ec92b81be91740aaf845198f5f6327dac5498c57
         // Si el usuario no es un administrador, autenticarlo
         if (!($user->rol_id == 1)) return response()->json([
             'token' => $user->createToken("auth_token")->plainTextToken,
             'usuario' => $user
-        ], 200); 
+        ], 200);
 
         // Si el usuario es un administrador, generar la ruta firmada sin intentar autenticarlo
         //Y mandara el codigo al correo
         $url = URL::temporarySignedRoute('validarCodigo', now()->addMinutes(10), [
             'id' => $user->id
-        ]);                        
+        ]);
         // Generar numero aleatorio, convertirlo a string y hashear
         $random = sprintf("%04d", rand(0, 9999));
         $codigo = strval($random); //convertir a string
         $codigo_hash = password_hash($codigo, PASSWORD_DEFAULT);
-        
+
         try {
             //Guardarlo en BD 
             $user->codigo = $codigo_hash;
@@ -102,7 +109,135 @@ class LoginController extends Controller
             'msj' => 'Se ha enviado un correo con el código de autenticación.',
         ], 200);
     }
+    public function login(LoginRequest $request): \Illuminate\Http\JsonResponse
+    {
+        $validateData = $request->validated();
+        try {
+            //Verificar si el usuario existe    
+            $user = User::where("correo", "=", $validateData['correo'])->first();
+        } catch (QueryException $e) {
+            // Manejo de la excepción de consulta SQL
+            Log::error('Error de consulta SQL: ' . $e->getMessage());
+            return response()->json([
+                "error" => 'Error interno del servidor',
+                "message" => "Usuario no encontrado."
+            ], 500);
+        } catch (Exception $e) {
+            // Manejo de cualquier otra excepción no prevista
+            Log::error('Excepción no controlada: ' . $e->getMessage());
+            return response()->json([
+                "error" => 'Error interno del servidor',
+                "message" => "No se pudo resolver la petición."
+            ], 500);
+        }
 
+        //Si el usuario no existe
+        if ($user == null) return response()->json([
+            "msg" => "credenciales incorrectas",
+        ], 400);
+
+        //Si el usuario se equivoco en la contraseña
+        if (!Hash::check($request->password, $user->password)) return response()->json([
+            "msg" => "credenciales incorrectas",
+        ], 400);
+
+        // Si el usuario es un tecnico, autenticarlo
+        if (($user->rol_id === 3)) {
+            return response()->json([
+                'token' => $user->createToken("auth_token")->plainTextToken,
+                'usuario' => $user
+            ], 200);
+        }// Si el usuario es una secretaria, no autenticarlo
+        else if (($user->rol_id === 2)) {
+            return response()->json([
+                "msg" => "credenciales incorrectas, eres secretaria",
+            ], 400);
+        }
+
+        // Si el usuario es un administrador, generar la ruta firmada sin intentar autenticarlo
+        //Y mandara el codigo al correo
+        $url = URL::temporarySignedRoute('validarCodigo', now()->addMinutes(10), [
+            'id' => $user->id
+        ]);
+        // Generar numero aleatorio, convertirlo a string y hashear
+        $random = sprintf("%04d", rand(0, 9999));
+        $codigo = strval($random); //convertir a string
+        $codigo_hash = password_hash($codigo, PASSWORD_DEFAULT);
+
+        try {
+            //Guardarlo en BD 
+            $user->codigo = $codigo_hash;
+            $user->save();
+
+            //mandar mail con el codigo
+            $emailAdmin = new CodigoAuthCorreo($codigo);
+            Mail::to($user->correo)->send($emailAdmin);
+        } catch (QueryException $e) {
+            // Manejo de la excepción de consulta SQL
+            Log::error('Error de consulta SQL: ' . $e->getMessage());
+            return response()->json([
+                "error" => 'Error interno del servidor',
+                "message" => "Error al generar el codigo."
+            ], 500);
+        } catch (Exception $e) {
+            // Manejo de cualquier otra excepción no prevista
+            Log::error('Excepción no controlada: ' . $e->getMessage());
+            return response()->json([
+                "error" => 'Error interno del servidor',
+                "message" => "No se pudo resolver la petición."
+            ], 500);
+        }
+
+        return response()->json([
+            'rutaFirmada' => $url,
+            'msj' => 'Se ha enviado un correo con el código de autenticación.',
+        ], 200);
+    }
+    public function loginDesk(LoginRequest $request): \Illuminate\Http\JsonResponse
+    {
+        $validateData = $request->validated();
+        try {
+            //Verificar si el usuario existe    
+            $user = User::where("correo", "=", $validateData['correo'])->first();
+        } catch (QueryException $e) {
+            // Manejo de la excepción de consulta SQL
+            Log::error('Error de consulta SQL: ' . $e->getMessage());
+            return response()->json([
+                "error" => 'Error interno del servidor',
+                "message" => "Usuario no encontrado."
+            ], 500);
+        } catch (Exception $e) {
+            // Manejo de cualquier otra excepción no prevista
+            Log::error('Excepción no controlada: ' . $e->getMessage());
+            return response()->json([
+                "error" => 'Error interno del servidor',
+                "message" => "No se pudo resolver la petición."
+            ], 500);
+        }
+
+        //Si el usuario no existe
+        if ($user == null) return response()->json([
+            "msg" => "credenciales incorrectas",
+        ], 400);
+
+        //Si el usuario se equivoco en la contraseña
+        if (!Hash::check($request->password, $user->password)) return response()->json([
+            "msg" => "credenciales incorrectas",
+        ], 400);
+
+        // Si el usuario es una secretaria, autenticarlo
+        if (($user->rol_id === 2)) {
+            return response()->json([
+                'token' => $user->createToken("auth_token")->plainTextToken,
+                'usuario' => $user
+            ], 200);
+        }
+        else{
+            return response()->json([
+                "msg" => "credenciales incorrectas, no es una secretaria",
+            ], 400);
+        }
+    }
     public function logout(Request $request)
     {
         // Recuperar el usuario autenticado
@@ -112,7 +247,7 @@ class LoginController extends Controller
         // Retornar respuesta
         return response()->json([
             'msg' => 'Seccion cerrada',
-        ],200);
+        ], 200);
     }
 
     public function validarCodigo($id, ValidateCodeRequest $request)
@@ -130,8 +265,8 @@ class LoginController extends Controller
 
             // Verificar si el usuario existe
             if ($user === null) return response()->json([
-                    'msg' => 'Acceso no autorizado.',
-                ], 403);
+                'msg' => 'Acceso no autorizado.',
+            ], 403);
         } catch (QueryException $e) {
             // Manejo de la excepción de consulta SQL
             Log::error('Error de consulta SQL: ' . $e->getMessage());
@@ -152,14 +287,11 @@ class LoginController extends Controller
         if (!password_verify($validateData["codigo"], $user->codigo)) return response()->json([
             'msg' => 'Codigo incorrecto',
         ], 403);
-    
+
         //Si es admin va a validar que el codigo sea correcto, si es asi logear a admin
         return response()->json([
             'token' => $user->createToken("auth_token")->plainTextToken,
             'usuario' => $user
-        ], 200); 
-
+        ], 200);
     }
-
-
 }
