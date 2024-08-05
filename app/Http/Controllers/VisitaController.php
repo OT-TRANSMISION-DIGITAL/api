@@ -106,7 +106,14 @@ class VisitaController extends Controller
                 'estatus' => 'Sin Autorizar',
 
             ]);
-        } catch (QueryException $e) {
+        } catch (CustomException $e) {
+            Log::error('Excepción no controlada: ' . $e->getMessage());
+            return response()->json([
+                "error" => 'Error interno del servidor.',
+                "message" => $e->getMessage(),
+            ], 500);
+        }
+        catch (QueryException $e) {
             Log::error('Error de consulta SQL: ' . $e->getMessage());
             return response()->json([
                 "error" => 'Error interno del servidor.',

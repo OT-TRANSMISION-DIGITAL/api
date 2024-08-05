@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Exceptions\CustomException;
 
 class Orden extends Model
 {
@@ -42,5 +43,20 @@ class Orden extends Model
     public function detalles()
     {
         return $this->hasMany(OrdenDetalle::class, 'orden_id');
+    }
+    
+    public static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($orden) {
+            $existingOrder = self::where('tecnico_id', $orden->tecnico_id)
+                ->where('fechaHoraSolicitud', $orden->fechaHoraSolicitud)
+                ->first();
+
+            if ($existingOrder) {
+                throw new CustomException('El técnico ya tiene una orden asignada en la misma fecha y hora');
+            }
+        });
     }
 }

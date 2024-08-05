@@ -54,16 +54,10 @@ class LoginController extends Controller
         ], 400);
 
         //Si el usuario se equivoco en la contraseña
-<<<<<<< HEAD
-        if(!Hash::check($request->password, $user->password)) return response()->json([
-            "msg"=>"credenciales incorrectas",
-            ],400);
-=======
         if (!Hash::check($request->password, $user->password)) return response()->json([
             "msg" => "credenciales incorrectas",
         ], 400);
 
->>>>>>> ec92b81be91740aaf845198f5f6327dac5498c57
         // Si el usuario no es un administrador, autenticarlo
         if (!($user->rol_id == 1)) return response()->json([
             'token' => $user->createToken("auth_token")->plainTextToken,

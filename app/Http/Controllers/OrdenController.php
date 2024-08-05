@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Orden;
 use App\Models\User;
 use Exception;
+use App\Exceptions\CustomException;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Log;
 use App\Http\Requests\Orden\OrdenRequest;
@@ -124,7 +125,14 @@ class OrdenController extends Controller
                 "error" => 'Error interno del servidor.',
                 "message" => "Error al crear la orden."
             ], 500);
-        } catch (Exception $e) {
+        } catch (CustomException $e) {
+            Log::error('Excepción no controlada: ' . $e->getMessage());
+            return response()->json([
+                "error" => 'Error interno del servidor.',
+                "message" => $e->getMessage(),
+            ], 500);
+        }
+        catch (Exception $e) {
             Log::error('Excepción no controlada: ' . $e->getMessage());
             return response()->json([
                 "error" => 'Error interno del servidor.',

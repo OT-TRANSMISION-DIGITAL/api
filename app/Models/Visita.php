@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Exceptions\CustomException;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Cliente;
@@ -37,5 +38,19 @@ class Visita extends Model
     public function sucursal()
     {
         return $this->belongsTo(Sucursal::class);
+    }
+    public static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($orden) {
+            $existingOrder = self::where('tecnico_id', $orden->tecnico_id)
+                ->where('fechaHoraSolicitud', $orden->fechaHoraSolicitud)
+                ->first();
+
+            if ($existingOrder) {
+                throw new CustomException('El técnico ya tiene una orden asignada en la misma fecha y hora');
+            }
+        });
     }
 }
