@@ -83,6 +83,10 @@ class LoginController extends Controller
             'msg' => 'Codigo incorrecto',
         ], 403);
 
+        //Eliminar codigo para que ya no sea valido en otro usuario
+        $user->update([
+            'watch_codigo' => null
+        ]);
        //si el codigo es correcto iniciar sesion en el reloj
         return response()->json([
             'token' => $user->createToken("auth_token")->plainTextToken,
