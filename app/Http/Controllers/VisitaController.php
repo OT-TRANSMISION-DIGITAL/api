@@ -11,9 +11,12 @@ use App\Http\Requests\Visita\VisitaRequest;
 use Illuminate\Database\QueryException;
 use App\Models\Orden;
 use App\Models\User;
+use App\Exceptions\CustomException;
+
 //Eventos
 use App\Events\Notificaciones;
 use App\Events\NotificacionesAdmin;
+
 
 class VisitaController extends Controller
 {
@@ -299,22 +302,51 @@ class VisitaController extends Controller
     public function agenda(Request $request)
     {
         $fechaHoy = date('Y-m-d');
-        //Si no hay fecha se toma la de hoy
-        $fecha = $request->get('fecha', $fechaHoy);
+        //Si no hay fecha te trae todas
+        $fecha = $request->get('fecha', null);
         //Si no hay tipo se toma el de ordenes
         $tipo = $request->get('tipo', 'ordenes');
         //id del tecnico
         $tecnico = $request->get('tecnico', null);
+        //estatus
+        $estatus = $request->get('estatus', null);
+
 
         
         $ordenes = Orden::select('id', 'fechaHoraSolicitud', 'estatus','tecnico_id')
-//        ->whereDate('fechaHoraSolicitud', '=', $fecha)
         ->where('estatus', '!=', 'Sin Autorizar')
         ;
         $visitas = Visita::select('id', 'fechaHoraSolicitud', 'estatus','tecnico_id')
-  //      ->whereDate('fechaHoraSolicitud', '=', $fecha)
         ->where('estatus', '!=', 'Sin Autorizar')
         ;
+
+        if($fecha != null)
+        {
+            $ordenes->whereDate('fechaHoraSolicitud', '=', $fecha);
+            $visitas->whereDate('fechaHoraSolicitud', '=', $fecha);
+        }
+
+        switch ($estatus) {
+            case 'Sin Autorizar':
+                $visitas->where('estatus', 'Sin Autorizar');
+                $ordenes->where('estatus', 'Sin Autorizar');
+                break;
+            case 'Autorizada':
+                $visitas->where('estatus', 'Autorizada');
+                $ordenes->where('estatus', 'Autorizada');
+                break;
+            case 'Finalizada':
+                $visitas->where('estatus', 'Finalizada');
+                $ordenes->where('estatus', 'Finalizada');
+                break;
+            case 'Cancelada':
+                $visitas->where('estatus', 'Cancelada');
+                $ordenes->where('estatus', 'Cancelada');
+                break;
+            default:
+                break;
+        }
+
         if($tecnico != null){
             if(User::find($tecnico) == null){
                 return response()->json([
