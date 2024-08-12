@@ -155,21 +155,24 @@
         </table>
     </div>
     
-    <footer style="display: table; margin-top: 70px; width: 100%;">
-        <div style="margin-bottom: 20px;">
-            <div style="display: inline-block; width: auto;">
+    <footer style="display: table; margin-top: 40px; width: 100%;">
+        <div style="margin-bottom: 0px;">
+            <!-- <div style="display: inline-block; width: auto;">
                 <hr style="width: 280px; margin: 0; padding: 0;"/>
                 <p style="text-align: center; margin: 0; padding: 0; font-size: 15px;">Firma de recibido</p>
             </div>
             <div style="display: inline-block; width: auto; margin-left: 17%;">
                 <hr style="width: 280px; margin: 0; padding: 0;"/>
                 <p style="text-align: center; margin: 0; padding: 0; font-size: 15px;">Firma del Técnico</p>
-            </div>
+            </div> -->
         </div>
-        <div style="display: inline-block; margin-left: 30%; margin-top:15px;">
-            <div>
+        <div style="display: inline-block; margin-left: 30%;">
+            <div style=" width: 100%;">
+                <div style="margin-left: 40%; ">
+                    <img src="{{ public_path('imagenes/firmaPrueba.png') }}" alt="Logo" width="50">
+                </div>
                 <hr style="width: 280px; margin: 0; padding: 0;"/>
-                <p style="text-align: center; margin: 0; padding: 0; font-size: 15px;">Autorizada</p>
+                <p style="text-align: center; margin: 0; padding: 0; font-size: 15px;">Firma de recibido</p>
             </div>
         </div>
     </footer>
