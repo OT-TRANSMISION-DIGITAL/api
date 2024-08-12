@@ -81,6 +81,7 @@ class ProductoController extends Controller
             }
         } else {
             $validatedData['img'] = null;
+            $name = '';
         }
 
         try {

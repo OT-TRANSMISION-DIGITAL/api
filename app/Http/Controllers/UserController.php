@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 // Use Requests
 use Illuminate\Http\Request;
 use App\Http\Requests\Auth\RegisterRequest;
+use App\Http\Requests\Auth\RegisterUpdateRequest;
 use App\Http\Requests\Imagen\ImagenRequest;
 
 // Use Models
@@ -131,7 +132,7 @@ class UserController extends Controller
 
 
 
-    public function update(RegisterRequest $request, $id){
+    public function update(RegisterUpdateRequest $request, $id){
         $validatedData = $request->validated();
 
         $User = User::find($id);
@@ -146,7 +147,6 @@ class UserController extends Controller
                 'correo' => $validatedData['correo'],
                 'telefono' => $validatedData['telefono'],
                 'rol_id' => $validatedData['rol_id'],
-                'password' => Hash::make($validatedData['password']),
             ]);
         } catch (QueryException $e) {
             // Manejo de la excepción de consulta SQL

@@ -342,7 +342,7 @@ class OrdenController extends Controller
         foreach ($orden->detalles as $item) {
             $subtotal += $item->cantidad * $item->producto->precio;
             $detalle[] = [
-                'cantidad' => '$'.number_format($item->cantidad),
+                'cantidad' => number_format($item->cantidad),
                 'producto' => $item->producto->nombre,
                 'unidad' => 'Unitario',
                 'precio' => '$'.number_format($item->producto->precio),
