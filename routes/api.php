@@ -85,6 +85,7 @@ Route::put('visitas/{id}',[VisitaController::class, 'update']);
 Route::patch('/visitas/autorizar/{id}', [VisitaController::class, 'autorizar']);
 Route::patch('/visitas/cancelar/{id}', [VisitaController::class, 'cancelar']);
 Route::patch('/visitas/finalizar/{id}', [VisitaController::class, 'finalizar']);
+Route::get('horarios', [VisitaController::class, 'horariosTecnico']);
 
 //ORDENES
 Route::get('ordenes',[OrdenController::class, 'index']);

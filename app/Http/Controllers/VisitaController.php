@@ -28,11 +28,11 @@ class VisitaController extends Controller
 
         $page = $request->get('page', 1);
         $perPage = $request->get('perPage', 20);
-        
+
         $estatus = $request->get('estatus', '');
         $tecnico = $request->get('tecnico', null);
         $fecha = $request->get('fecha', null);
-        
+
         switch ($estatus) {
             case 'Sin Autorizar':
                 $visitas->where('estatus', 'Sin Autorizar');
@@ -50,19 +50,18 @@ class VisitaController extends Controller
                 break;
         }
 
-        if($tecnico != null){
-            if(User::find($tecnico) == null){
+        if ($tecnico != null) {
+            if (User::find($tecnico) == null) {
                 return response()->json([
                     'msg' => 'El tecnico no existe',
                 ], 404);
             }
-            $visitas->where('tecnico_id','=',$tecnico);
-        }
-        else{
+            $visitas->where('tecnico_id', '=', $tecnico);
+        } else {
             $visitas->with('tecnico');
         }
 
-        if($fecha != null){
+        if ($fecha != null) {
             $visitas->whereDate('fechaHoraSolicitud', '=', $fecha);
         }
 
@@ -115,8 +114,7 @@ class VisitaController extends Controller
                 "error" => 'Error interno del servidor.',
                 "message" => $e->getMessage(),
             ], 500);
-        }
-        catch (QueryException $e) {
+        } catch (QueryException $e) {
             Log::error('Error de consulta SQL: ' . $e->getMessage());
             return response()->json([
                 "error" => 'Error interno del servidor.',
@@ -312,16 +310,13 @@ class VisitaController extends Controller
         $estatus = $request->get('estatus', null);
 
 
-        
-        $ordenes = Orden::select('id', 'fechaHoraSolicitud', 'estatus','tecnico_id')
-        ->where('estatus', '!=', 'Sin Autorizar')
-        ;
-        $visitas = Visita::select('id', 'fechaHoraSolicitud', 'estatus','tecnico_id')
-        ->where('estatus', '!=', 'Sin Autorizar')
-        ;
 
-        if($fecha != null)
-        {
+        $ordenes = Orden::select('id', 'fechaHoraSolicitud', 'estatus', 'tecnico_id')
+            ->where('estatus', '!=', 'Sin Autorizar');
+        $visitas = Visita::select('id', 'fechaHoraSolicitud', 'estatus', 'tecnico_id')
+            ->where('estatus', '!=', 'Sin Autorizar');
+
+        if ($fecha != null) {
             $ordenes->whereDate('fechaHoraSolicitud', '=', $fecha);
             $visitas->whereDate('fechaHoraSolicitud', '=', $fecha);
         }
@@ -347,28 +342,26 @@ class VisitaController extends Controller
                 break;
         }
 
-        if($tecnico != null){
-            if(User::find($tecnico) == null){
+        if ($tecnico != null) {
+            if (User::find($tecnico) == null) {
                 return response()->json([
                     'msg' => 'El tecnico no existe',
                 ], 404);
             }
-            $ordenes->where('tecnico_id','=',$tecnico);
-            $visitas->where('tecnico_id','=',$tecnico);
-        }
-        else{
+            $ordenes->where('tecnico_id', '=', $tecnico);
+            $visitas->where('tecnico_id', '=', $tecnico);
+        } else {
             $ordenes->with('tecnico');
             $visitas->with('tecnico');
         }
 
         try {
-            if($tipo == 'ordenes'){
-            $ordenes = $ordenes->get();
-            return response()->json($ordenes, 200);
-            }
-            else{
-            $visitas = $visitas->get();
-            return response()->json($visitas, 200);
+            if ($tipo == 'ordenes') {
+                $ordenes = $ordenes->get();
+                return response()->json($ordenes, 200);
+            } else {
+                $visitas = $visitas->get();
+                return response()->json($visitas, 200);
             }
         } catch (Exception $e) {
             Log::error($e->getMessage());
@@ -378,12 +371,78 @@ class VisitaController extends Controller
             ], 500);
         }
     }
-    
+
     public function notificacion()
     {
         $message = 'prueba notificaciones';
 
         event(new Notificaciones($message, 1));
         event(new NotificacionesAdmin($message));
+    }
+
+    public function horariosTecnico(Request $request)
+    {
+
+        try {
+
+            $fecha = $request->get('fecha', null);
+            $tecnico = $request->get('tecnico', null);
+    
+            if (($fecha == null) || ($tecnico == null)) {
+                return response()->json([
+                    'msg' => 'fecha y tecnico son requeridos',
+                ], 422);
+            }
+    
+            $horario = ["08:00:00", "11:00:00", "14:00:00", "17:00:00"];
+    
+            $visitas = Visita::select('fechaHoraSolicitud')
+                ->where('tecnico_id', '=', $tecnico)
+                ->where('estatus', '!=', 'Cancelada')
+                ->where('estatus', '!=', 'Finalizada')
+                ->whereDate('fechaHoraSolicitud', '=', $fecha)
+                ->get()
+                ->pluck('fechaHoraSolicitud')
+                ->toArray();
+    
+            // Obtener las fechas y horas ocupadas en la tabla Ordenes
+            $ordenes = Orden::select('fechaHoraSolicitud')
+                ->where('tecnico_id', '=', $tecnico)
+                ->where('estatus', '!=', 'Cancelada')
+                ->where('estatus', '!=', 'Finalizada')
+                ->whereDate('fechaHoraSolicitud', '=', $fecha)
+                ->get()
+                ->pluck('fechaHoraSolicitud')
+                ->toArray();
+    
+            // Unir las fechas ocupadas de ambas tablas
+            $ocupados = array_merge($visitas, $ordenes);
+    
+    
+            // Convertir las fechas ocupadas a solo horas en formato H:i:s usando funciones nativas de PHP
+            $ocupados = array_map(function ($item) {
+                return date('H:i:s', strtotime($item));
+            }, $ocupados);
+    
+            // Filtrar los horarios disponibles
+            $disponibles = array_diff($horario, $ocupados);
+
+            // Convertir los horarios disponibles en un array sin índices asociados
+            $disponibles = array_values($disponibles);
+
+        } catch (Exception $e) {
+            return response()->json([
+                'msg' => 'Error al obtener los horarios del tecnico',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+
+
+        return response()->json([
+            'msg' => 'Horarios obtenidos con exito',
+            'horarios' => $disponibles,
+            'ocupados' => $ocupados
+        ], 200);
+
     }
 }
