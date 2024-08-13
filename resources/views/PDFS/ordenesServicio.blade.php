@@ -169,7 +169,11 @@
         <div style="display: inline-block; margin-left: 30%;">
             <div style=" width: 100%;">
                 <div style="margin-left: 40%; ">
-                    <img src="{{ public_path('imagenes/firmaPrueba.png') }}" alt="Logo" width="50">
+                    @if(!is_null($data['firma']))
+                        <img src="{{ public_path('imagenes/firmas/' . $data['firma']) }}" alt="Logo" width="80">
+                    @else
+                        <p>Sin firma</p>
+                    @endif
                 </div>
                 <hr style="width: 280px; margin: 0; padding: 0;"/>
                 <p style="text-align: center; margin: 0; padding: 0; font-size: 15px;">Firma de recibido</p>

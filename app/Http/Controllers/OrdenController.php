@@ -362,6 +362,14 @@ class OrdenController extends Controller
                 ];
             }
         }
+        if ($orden->firma != null)
+        {
+            $firma = basename($orden->firma);
+        }
+        else
+        {
+            $firma = null;
+        }
         $data = [
             'empresa' => $orden->sucursal->nombre,
             'persona_solicita' => $orden->persona_solicitante,
@@ -375,6 +383,7 @@ class OrdenController extends Controller
             'iva' => number_format($iva * 100).'%',
             'subtotal' => '$'.number_format($subtotal, 2),
             'total' => '$'.number_format($total, 2),
+            'firma' => $firma,
         ];
         // return response()->json($data);
         // Parámetros - nombre del archivo, vista a la que va a hacer referencia, datos que va a mostrar en el PDF
