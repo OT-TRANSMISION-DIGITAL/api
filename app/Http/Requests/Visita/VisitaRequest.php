@@ -34,7 +34,7 @@ class VisitaRequest extends FormRequest
             'direccion' => 'required|string|min:10',
             'cliente_id' => 'required|integer|exists:clientes,id',
             'tecnico_id' => 'required|integer|exists:users,id',
-            'sucursal_id' => 'required|integer|exists:sucursales,id',
+            'sucursal_id' => 'nullable|integer|exists:sucursales,id',
         ];
     }
 
