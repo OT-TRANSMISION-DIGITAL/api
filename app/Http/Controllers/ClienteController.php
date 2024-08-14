@@ -14,7 +14,10 @@ class ClienteController extends Controller
 {
     public function index(Request $request)
     {
-        $clientes = Cliente::select('id','nombre', 'correo', 'telefono')->where('estatus', true)->with('sucursales');
+        $clientes = Cliente::select('id','nombre', 'correo', 'telefono')
+        ->where('estatus', true)
+        ->with('sucursales')
+        ->orderBy('created_at', 'desc');
         $page = $request->get('page', 1);
         $perPage = $request->get('perPage', 20);
         $offset = $page == 1 ? 0 : $perPage * ($page - 1);

@@ -15,7 +15,9 @@ class ProductoController extends Controller
 {
     public function index(Request $request)
     {
-        $productos = Producto::select('id', 'nombre', 'descripcion', 'precio', 'img')->where('estatus', true);
+        $productos = Producto::select('id', 'nombre', 'descripcion', 'precio', 'img')
+        ->where('estatus', true)
+        ->orderBy('created_at', 'desc');
         $page = $request->get('page', 1);
         $perPage = $request->get('perPage', 20);
         $offset = $page == 1 ? 0 : $perPage * ($page - 1);
@@ -46,7 +48,9 @@ class ProductoController extends Controller
 
     public function productos()
     {
-        $productos = Producto::select('id', 'nombre', 'descripcion', 'precio', 'img')->where('estatus', true);
+        $productos = Producto::select('id', 'nombre', 'descripcion', 'precio', 'img')
+        ->where('estatus', true)
+        ->orderBy('created_at', 'desc');
 
         try {
             $productos = $productos->get();

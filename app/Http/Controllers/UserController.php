@@ -91,7 +91,8 @@ class UserController extends Controller
 
     public function index(Request $request)
     {
-        $usuarios = User::select('id','nombre', 'correo', 'telefono', 'img', 'rol_id')->where('estatus', true)->with('rol');
+        $usuarios = User::select('id','nombre', 'correo', 'telefono', 'img', 'rol_id')
+        ->where('estatus', true)->orderBy('created_at', 'desc')->with('rol');
         $page = $request->get('page', 1);
         $perPage = $request->get('perPage', 20);
         $offset = $page == 1 ? 0 : $perPage * ($page - 1);

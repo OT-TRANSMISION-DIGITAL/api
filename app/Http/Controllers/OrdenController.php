@@ -24,7 +24,8 @@ class OrdenController extends Controller
 
     public function index(Request $request)
     {
-        $ordenes = Orden::with(['cliente', 'tecnico', 'sucursal', 'detalles.producto']);
+        $ordenes = Orden::with(['cliente', 'tecnico', 'sucursal', 'detalles.producto'])
+        ->orderBy('fechaHoraSolicitud', 'desc');
 
         $page = $request->get('page', 1);
         $perPage = $request->get('perPage', 20);

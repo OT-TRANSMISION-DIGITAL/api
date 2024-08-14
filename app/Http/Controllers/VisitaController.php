@@ -24,7 +24,8 @@ class VisitaController extends Controller
     public function index(Request $request)
     {
         $visitas = Visita::select('id', 'motivo', 'fechaHoraSolicitud', 'fechaHoraLlegada', 'fechaHoraSalida', 'direccion', 'estatus', 'cliente_id', 'tecnico_id', 'sucursal_id')
-            ->with(['cliente', 'tecnico', 'sucursal']);
+            ->with(['cliente', 'tecnico', 'sucursal'])
+            ->orderBy('fechaHoraSolicitud', 'desc');
 
         $page = $request->get('page', 1);
         $perPage = $request->get('perPage', 20);

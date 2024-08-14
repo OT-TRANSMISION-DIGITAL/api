@@ -22,7 +22,7 @@ class SucursalController extends Controller
     public function index(Request $request)
     {
         $sucursales = Sucursal::select('id','nombre', 'direccion', 'telefono','cliente_id')
-        ->where('estatus', true)->with('cliente');
+        ->where('estatus', true)->orderBy('created_at', 'desc')->with('cliente');
         $page = $request->get('page', 1);
         $perPage = $request->get('perPage', 20);
         $offset = $page == 1 ? 0 : $perPage * ($page - 1);
@@ -54,7 +54,7 @@ class SucursalController extends Controller
     public function sucursales()
     {
         $sucursales = Sucursal::select('id','nombre', 'direccion', 'telefono','cliente_id')
-        ->where('estatus', true)->with('cliente');
+        ->where('estatus', true)->orderBy('created_at', 'desc')->with('cliente');
 
         try {
         $sucursales = $sucursales->get();
