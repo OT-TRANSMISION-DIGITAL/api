@@ -84,9 +84,8 @@ class LoginController extends Controller
         ], 403);
 
         //Eliminar codigo para que ya no sea valido en otro usuario
-        $user->update([
-            'watch_codigo' => null
-        ]);
+        $user->watch_codigo = null;
+        $user->save();
        //si el codigo es correcto iniciar sesion en el reloj
         return response()->json([
             'token' => $user->createToken("auth_token")->plainTextToken,
