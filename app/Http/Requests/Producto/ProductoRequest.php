@@ -27,7 +27,7 @@ class ProductoRequest extends FormRequest
     public function rules()
     {
         return [
-            'nombre' => 'required|string|min:3|regex:/^[a-zA-Z\s]*$/',
+            'nombre' => 'required|string|min:3',
             'descripcion' => 'required|string|max:255',
             'precio' => 'required|numeric'
         ];

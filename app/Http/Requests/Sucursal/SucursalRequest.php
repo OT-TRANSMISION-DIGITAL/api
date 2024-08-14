@@ -27,7 +27,7 @@ class SucursalRequest extends FormRequest
     public function rules()
     {
         return [
-            'nombre' => 'required|string|min:3|regex:/^[a-zA-Z\s]*$/',
+            'nombre' => 'required|string|min:3',
             'direccion' => 'required|string|max:255',
             'telefono' => 'required|string|min:10|max:10',
             'cliente_id' => 'required|integer'
