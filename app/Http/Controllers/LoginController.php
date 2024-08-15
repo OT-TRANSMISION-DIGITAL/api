@@ -144,7 +144,7 @@ class LoginController extends Controller
         }// Si el usuario es una secretaria, no autenticarlo
         else if (($user->rol_id === 2)) {
             return response()->json([
-                "msg" => "credenciales incorrectas, eres secretaria",
+                "msg" => "credenciales incorrectas",
             ], 400);
         }
 
@@ -222,7 +222,7 @@ class LoginController extends Controller
         // Si el usuario es un tecnico o secretaria, no autenticarlo
          if (($user->rol_id === 2) || ($user->rol_id === 3)) {
             return response()->json([
-                "msg" => "Acceso no autorizado, eres secretaria o tecnico",
+                "msg" => "credenciales incorrectas",
             ], 400);
         }
 
@@ -306,7 +306,7 @@ class LoginController extends Controller
         }
         else{
             return response()->json([
-                "msg" => "credenciales incorrectas, no es una secretaria",
+                "msg" => "credenciales incorrectas",
             ], 400);
         }
     }
