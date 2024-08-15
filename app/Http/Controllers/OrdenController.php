@@ -371,12 +371,17 @@ class OrdenController extends Controller
         {
             $firma = null;
         }
+        if($orden->sucursal->nombre == null)
+        {
+            $orden->sucursal->nombre = 'Sin sucursal';
+        }
         $data = [
-            'empresa' => $orden->sucursal->nombre,
+            'cliente' => $orden->cliente->nombre,
+            'sucursal' => $orden->sucursal->nombre,
             'persona_solicita' => $orden->persona_solicitante,
             'direccion' => $orden->direccion,
             'telefono' => $orden->cliente->telefono,
-            'receptor' => $orden->tecnico->nombre,
+            'tecnico' => $orden->tecnico->nombre,
             'fecha' => $fecha,
             'folio' => $orden->id,
             'nota' => '',

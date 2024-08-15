@@ -58,21 +58,21 @@
         <div style="width: 100%;
     display: table-caption; margin-bottom: 8px">
             <div style="display: inline-block; padding-right: 10px;">
-                <label style="font-size: 14px; font-weight: 700; color: #26227B; white-space: nowrap;">Empresa: </label>
+                <label style="font-size: 14px; font-weight: 700; color: #26227B; white-space: nowrap;">CLIENTE: </label>
             </div>
             <div style="display: inline-block; width: 87%;">
                 <input style="font-size: 14px; font-weight: bold; color: #000; margin: 0; padding: 0; border: none; border-bottom: #26227B 1px solid; margin-right: 2px; padding-left: 5px; width: 100%;" 
-                value="{{$data['empresa']}}" type="text"/>
+                value="{{$data['cliente']}}" type="text"/>
             </div>
         </div>
         <div style="width: 100%;
     display: table-caption; margin-bottom: 8px">
             <div style="display: inline-block; padding-right: 10px;">
-                <label style="font-size: 14px; font-weight: 700; color: #26227B; white-space: nowrap;">PERSONA QUE RECIBE: </label>
+                <label style="font-size: 14px; font-weight: 700; color: #26227B; white-space: nowrap;">SUCURSAL: </label>
             </div>
             <div style="display: inline-block; width: 72.7%;">
                 <input style="font-size: 14px; font-weight: bold; color: #000; margin: 0; padding: 0; border: none; border-bottom: #26227B 1px solid; margin-right: 2px; padding-left: 5px; width: 100%;" 
-                value="{{$data['persona_solicita']}}" type="text"/>
+                value="{{$data['sucursal']}}" type="text"/>
             </div>
         </div>
         <div style="width: 100%;
@@ -90,7 +90,7 @@
             <div style="width: 45%;
             display: inline-block; margin-right: 10px;">
                 <div style="display: inline-block; padding-right: 10px;">
-                    <label style="font-size: 14px; font-weight: 700; color: #26227B; white-space: nowrap;">Teléfono: </label>
+                    <label style="font-size: 14px; font-weight: 700; color: #26227B; white-space: nowrap;">TEL: </label>
                 </div>
                 <div style="display: inline-block; width: 73.2%;">
                     <input style="font-size: 14px; font-weight: bold; color: #000; margin: 0; padding: 0; border: none; border-bottom: #26227B 1px solid; margin-right: 2px; padding-left: 5px; width: 100%;" value="{{$data['telefono']}}" type="text"/>
@@ -100,10 +100,10 @@
             <div style="width: 50%;
             display: inline-block;">
                 <div style="display: inline-block;; padding-right: 10px;">
-                    <label style="font-size: 14px; font-weight: 700; color: #26227B; white-space: nowrap;">RECIBÍ: </label>
+                    <label style="font-size: 14px; font-weight: 700; color: #26227B; white-space: nowrap;">TECNICO: </label>
                 </div>
                 <div style="display: inline-block; width: 73.2%;">
-                    <input style="font-size: 14px; font-weight: bold; color: #000; margin: 0; padding: 0; border: none; border-bottom: #26227B 1px solid; margin-right: 2px; padding-left: 5px; width: 100%;" value="{{$data['receptor']}}" type="text"/>
+                    <input style="font-size: 14px; font-weight: bold; color: #000; margin: 0; padding: 0; border: none; border-bottom: #26227B 1px solid; margin-right: 2px; padding-left: 5px; width: 100%;" value="{{$data['tecnico']}}" type="text"/>
                 </div>
             </div>
         </div>
@@ -134,10 +134,7 @@
                 <tr>
                     <td colspan="3" rowspan="3" style="border: none;">
                         <div style="width: 100%; border: #26227B 2px solid; border-radius: 6px; overflow: hidden; margin: 5px; text-align: left;">
-                                <p style="color: #26227B; text-align: left;">Nota o Comentario</p>
-                                <p>
-                                    {{$data['nota']}}
-                                </p>
+                                <p style="color: #26227B; text-align: left;"></p>
                         </div>
                     </td>
                     <td style="border: none; text-align: right; padding-right: 25px;">Subtotal:</td>
@@ -170,7 +167,7 @@
             <div style=" width: 100%;">
                 <div style="margin-left: 40%; ">
                     @if(!is_null($data['firma']))
-                        <img src="{{ public_path('imagenes/firmas/' . $data['firma']) }}" alt="Logo" width="80">
+                        <img src="{{ public_path('imagenes/firmas/' . $data['firma']) }}" alt="Logo" width="180">
                     @else
                         <p>Sin firma</p>
                     @endif
