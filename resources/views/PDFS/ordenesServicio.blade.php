@@ -30,7 +30,7 @@
         <div style="display: inline-block; border: 2px solid #26227B; border-radius: 6px; overflow: hidden; margin: 0; padding: 0; width: 100%;">
             <div style="">
                 <p style="margin: 0; padding: 1px; font-size: 14px; font-weight: bold; color: #26227B; text-align: center; letter-spacing: 4px; border-bottom: 1.5px solid #26227B; background-color: #b7b7d0;">RECIBO</p>
-                <p style="margin: 10px 0 0 12px; font-weight: bold; color: #bb0c0c; text-align: left;">No. <span style="font-size: 20px; font-weight: bold; color: #bb0c0c; margin-left: 18px;">0041</span></p>
+                <p style="margin: 10px 0 0 12px; font-weight: bold; color: #bb0c0c; text-align: left;">#  <span style="font-size: 20px; font-weight: bold; color: #bb0c0c; margin-left: 18px;">{{$data['folio']}}</span></p>
             </div>
             <div style="position: relative;">
                 <p style="margin: 0; padding: 1px; font-size: 14px; font-weight: bold; color: #26227B; text-align: center; letter-spacing: 4px; border-bottom: 1.5px solid #26227B; border-top: 1.5px solid #26227B; background-color: #b7b7d0;">FECHA</p>
