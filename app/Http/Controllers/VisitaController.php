@@ -388,15 +388,15 @@ class VisitaController extends Controller
 
             $fecha = $request->get('fecha', null);
             $tecnico = $request->get('tecnico', null);
-    
+
             if (($fecha == null) || ($tecnico == null)) {
                 return response()->json([
                     'msg' => 'fecha y tecnico son requeridos',
                 ], 422);
             }
-    
-            $horario = ["08:00:00", "11:00:00", "14:00:00", "17:00:00"];
-    
+
+            $horario = ["08:00:00", "11:00:00", "14:00:00", "17:30:00", "18:00:00","19:00:00", "20:00:00"];
+
             $visitas = Visita::select('fechaHoraSolicitud')
                 ->where('tecnico_id', '=', $tecnico)
                 ->where('estatus', '!=', 'Cancelada')
@@ -405,7 +405,7 @@ class VisitaController extends Controller
                 ->get()
                 ->pluck('fechaHoraSolicitud')
                 ->toArray();
-    
+
             // Obtener las fechas y horas ocupadas en la tabla Ordenes
             $ordenes = Orden::select('fechaHoraSolicitud')
                 ->where('tecnico_id', '=', $tecnico)
@@ -415,21 +415,34 @@ class VisitaController extends Controller
                 ->get()
                 ->pluck('fechaHoraSolicitud')
                 ->toArray();
-    
+
             // Unir las fechas ocupadas de ambas tablas
             $ocupados = array_merge($visitas, $ordenes);
-    
-    
+
+
             // Convertir las fechas ocupadas a solo horas en formato H:i:s usando funciones nativas de PHP
             $ocupados = array_map(function ($item) {
                 return date('H:i:s', strtotime($item));
             }, $ocupados);
-    
+
             // Filtrar los horarios disponibles
             $disponibles = array_diff($horario, $ocupados);
 
             // Convertir los horarios disponibles en un array sin índices asociados
             $disponibles = array_values($disponibles);
+
+            // Obtener la hora actual solo si la fecha es hoy
+            if ($fecha == date('Y-m-d')) {
+                $horaActual = date('H:i:s');
+
+                // Filtrar horarios disponibles que son mayores a la hora actual
+                $disponibles = array_filter($disponibles, function ($hora) use ($horaActual) {
+                    return $hora > $horaActual;
+                });
+
+                // Reindexar el array
+                $disponibles = array_values($disponibles);
+            }
 
         } catch (Exception $e) {
             return response()->json([
@@ -444,6 +457,5 @@ class VisitaController extends Controller
             'horarios' => $disponibles,
             'ocupados' => $ocupados
         ], 200);
-
     }
 }
