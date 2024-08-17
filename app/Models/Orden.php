@@ -20,6 +20,8 @@ class Orden extends Model
         'fechaHoraSalida',
         'direccion',
         'estatus',
+        'coorLlegada',
+        'coorSalida',
         'cliente_id',
         'tecnico_id',
         'sucursal_id',

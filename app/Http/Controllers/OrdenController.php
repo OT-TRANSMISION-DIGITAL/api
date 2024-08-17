@@ -252,8 +252,11 @@ class OrdenController extends Controller
         ], 200);
     }
 
-    public function finalizar($id)
+    public function finalizar(Request $request, $id)
     {
+        $fechaHoraSalida = $request->get('fechaHoraSalida', null);
+        $coorSalida = $request->get('|', null);
+
         $orden = Orden::find($id);
         if (!$orden) {
             return response()->json([
@@ -263,7 +266,9 @@ class OrdenController extends Controller
 
         try {
             $orden->update([
-                'estatus' => 'Finalizada'
+                'estatus' => 'Finalizada',
+                'fechaHoraSalida' => $fechaHoraSalida,
+                'coorSalida' => $coorSalida
             ]);
         } catch (QueryException $e) {
             Log::error('Error de consulta SQL: ' . $e->getMessage());
@@ -499,6 +504,50 @@ class OrdenController extends Controller
         return response()->json([
             'msg' => 'Firma eliminada con exito',
             'Orden' => $Orden->id
+        ], 200);
+    }
+
+    public function horaLlegada(Request $request, $id)
+    {
+        //Si no hay fecha te trae todas
+        $fechaHoraLlegada = $request->get('fechaHoraLlegada', null);
+        //Si no hay tipo se toma el de ordenes
+        $coorLlegada = $request->get('coorLlegada', null);
+
+        if (($fechaHoraLlegada == null) || ($coorLlegada == null)) {
+            return response()->json([
+                'msg' => 'fechaHoraLlegada y coorLlegada son requeridos',
+            ], 422);
+        }
+
+        $Orden = Orden::find($id);
+        if (!$Orden) {
+            return response()->json([
+                'msg' => 'Orden no encontrada',
+            ], 404);
+        }
+
+        try {
+            $Orden->update([
+                'fechaHoraLlegada' => $fechaHoraLlegada,
+                'coorLlegada' => $coorLlegada,
+            ]);
+        } catch (QueryException $e) {
+            Log::error('Error de consulta SQL: ' . $e->getMessage());
+            return response()->json([
+                "error" => 'Error interno del servidor.',
+                "message" => "Error al registrar la hora de llegada."
+            ], 500);
+        } catch (Exception $e) {
+            Log::error('Excepción no controlada: ' . $e->getMessage());
+            return response()->json([
+                "error" => 'Error interno del servidor.',
+                "message" => "No se pudo resolver la petición."
+            ], 500);
+        }
+
+        return response()->json([
+            'msg' => 'Hora de llegada registrada con éxito en Orden #' . $Orden->id
         ], 200);
     }
 }

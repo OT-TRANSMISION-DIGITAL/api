@@ -86,6 +86,7 @@ Route::patch('/visitas/autorizar/{id}', [VisitaController::class, 'autorizar']);
 Route::patch('/visitas/cancelar/{id}', [VisitaController::class, 'cancelar']);
 Route::patch('/visitas/finalizar/{id}', [VisitaController::class, 'finalizar']);
 Route::get('horarios', [VisitaController::class, 'horariosTecnico']);
+Route::post('visitas/horaLlegada/{id}',[VisitaController::class, 'horaLlegada']);
 
 //ORDENES
 Route::get('ordenes',[OrdenController::class, 'index']);
@@ -96,6 +97,7 @@ Route::patch('/ordenes/autorizar/{id}', [OrdenController::class, 'autorizar']);
 Route::patch('/ordenes/finalizar/{id}', [OrdenController::class, 'finalizar']);
 Route::patch('/ordenes/cancelar/{id}', [OrdenController::class, 'cancelar']);
 Route::get('/ordeneServicios/generarPdf/{id}',[OrdenController::class, 'generatePdf']);
+Route::post('ordenes/horaLlegada/{id}',[OrdenController::class, 'horaLlegada']);
 // Route::get('/ordeneServicios/generarPdf',[OrdenController::class, 'generatePdf']);
 Route::post('ordenes/guardarFirma/{id}',[OrdenController::class, 'guardarFirma']);
 Route::delete('ordenes/eliminarFirma/{id}',[OrdenController::class, 'eliminarFirma']);

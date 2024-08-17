@@ -23,7 +23,7 @@ class VisitaController extends Controller
 
     public function index(Request $request)
     {
-        $visitas = Visita::select('id', 'motivo', 'fechaHoraSolicitud', 'fechaHoraLlegada', 'fechaHoraSalida', 'direccion', 'estatus', 'cliente_id', 'tecnico_id', 'sucursal_id')
+        $visitas = Visita::select('id', 'motivo', 'fechaHoraSolicitud', 'fechaHoraLlegada', 'fechaHoraSalida',  'coorLlegada', 'coorSalida','direccion', 'estatus', 'cliente_id', 'tecnico_id', 'sucursal_id')
             ->with(['cliente', 'tecnico', 'sucursal'])
             ->orderBy('fechaHoraSolicitud', 'desc');
 
@@ -137,7 +137,7 @@ class VisitaController extends Controller
 
     public function show($id)
     {
-        $visita = Visita::select('id', 'motivo', 'fechaHoraSolicitud', 'fechaHoraLlegada', 'fechaHoraSalida', 'direccion', 'estatus', 'cliente_id', 'tecnico_id', 'sucursal_id')
+        $visita = Visita::select('id', 'motivo', 'fechaHoraSolicitud', 'fechaHoraLlegada', 'fechaHoraSalida', 'coorLlegada', 'coorSalida', 'direccion', 'estatus', 'cliente_id', 'tecnico_id', 'sucursal_id')
             ->with(['cliente', 'tecnico', 'sucursal'])->find($id);
 
         if (!$visita) {
@@ -227,8 +227,11 @@ class VisitaController extends Controller
         ], 200);
     }
 
-    public function finalizar($id)
+    public function finalizar(Request $request, $id)
     {
+        $fechaHoraSalida = $request->get('fechaHoraSalida', null);
+        $coorSalida = $request->get('coorSalida', null);
+
         $visita = Visita::find($id);
         if (!$visita) {
             return response()->json([
@@ -238,7 +241,9 @@ class VisitaController extends Controller
 
         try {
             $visita->update([
-                'estatus' => 'Finalizada'
+                'estatus' => 'Finalizada',
+                'fechaHoraSalida' => $fechaHoraSalida,
+                'coorSalida' => $coorSalida
             ]);
         } catch (QueryException $e) {
             Log::error('Error de consulta SQL: ' . $e->getMessage());
@@ -395,7 +400,7 @@ class VisitaController extends Controller
                 ], 422);
             }
 
-            $horario = ["08:00:00", "11:00:00", "14:00:00", "17:30:00", "18:00:00","19:00:00", "20:00:00"];
+            $horario = ["08:00:00", "11:00:00", "14:00:00", "17:30:00", "18:00:00", "19:00:00", "20:00:00"];
 
             $visitas = Visita::select('fechaHoraSolicitud')
                 ->where('tecnico_id', '=', $tecnico)
@@ -443,7 +448,6 @@ class VisitaController extends Controller
                 // Reindexar el array
                 $disponibles = array_values($disponibles);
             }
-
         } catch (Exception $e) {
             return response()->json([
                 'msg' => 'Error al obtener los horarios del tecnico',
@@ -456,6 +460,50 @@ class VisitaController extends Controller
             'msg' => 'Horarios obtenidos con exito',
             'horarios' => $disponibles,
             'ocupados' => $ocupados
+        ], 200);
+    }
+
+    public function horaLlegada(Request $request, $id)
+    {
+        //Si no hay fecha te trae todas
+        $fechaHoraLlegada = $request->get('fechaHoraLlegada', null);
+        //Si no hay tipo se toma el de ordenes
+        $coorLlegada = $request->get('coorLlegada', null);
+
+        if (($fechaHoraLlegada == null) || ($coorLlegada == null)) {
+            return response()->json([
+                'msg' => 'fechaHoraLlegada y coorLlegada son requeridos',
+            ], 422);
+        }
+
+        $visita = Visita::find($id);
+        if (!$visita) {
+            return response()->json([
+                'msg' => 'Visita no encontrada',
+            ], 404);
+        }
+
+        try {
+            $visita->update([
+                'fechaHoraLlegada' => $fechaHoraLlegada,
+                'coorLlegada' => $coorLlegada,
+            ]);
+        } catch (QueryException $e) {
+            Log::error('Error de consulta SQL: ' . $e->getMessage());
+            return response()->json([
+                "error" => 'Error interno del servidor.',
+                "message" => "Error al registrar la hora de llegada."
+            ], 500);
+        } catch (Exception $e) {
+            Log::error('Excepción no controlada: ' . $e->getMessage());
+            return response()->json([
+                "error" => 'Error interno del servidor.',
+                "message" => "No se pudo resolver la petición."
+            ], 500);
+        }
+
+        return response()->json([
+            'msg' => 'Hora de llegada registrada con éxito en visita #' . $visita->id
         ], 200);
     }
 }
