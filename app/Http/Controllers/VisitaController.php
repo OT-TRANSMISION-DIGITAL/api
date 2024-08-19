@@ -400,7 +400,9 @@ class VisitaController extends Controller
                 ], 422);
             }
 
-            $horario = ["08:00:00", "11:00:00", "14:00:00", "17:30:00", "18:00:00", "19:00:00", "20:00:00", "21:00:00","21:30:00"];
+            //$horarioFijos = ["08:00:00", "11:00:00", "14:00:00","17:00:00"];
+
+            $horario = [ "17:10:00","17:15:00", "17:30:00","17:45:00", "18:00:00", "18:15:00", "18:30:00"];
 
             $visitas = Visita::select('fechaHoraSolicitud')
                 ->where('tecnico_id', '=', $tecnico)
